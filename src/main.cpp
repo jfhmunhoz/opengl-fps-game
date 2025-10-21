@@ -153,7 +153,7 @@ int main(int argc, char* argv[])
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     GLFWwindow* window;
-    window = glfwCreateWindow(800, 600, "INF01047 - 00275634 - Joao Francisco Hirtenkauf Munhoz", NULL, NULL);
+    window = glfwCreateWindow(800, 600, "OpenGL - FPS Game", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
