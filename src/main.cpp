@@ -260,7 +260,7 @@ int main(int argc, char* argv[])
         glm::mat4 projection;
 
         float nearplane = -0.1f;
-        float farplane  = -10.0f;
+        float farplane  = -100.0f;
 
         if (g_UsePerspectiveProjection)
         {
