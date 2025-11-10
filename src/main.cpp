@@ -182,7 +182,7 @@ int main(int argc, char* argv[])
 
     LoadShadersFromFiles();
 
-    LoadTextureImage("../../data/tc-earth_daymap_surface.jpg");
+    LoadTextureImage("../../data/rocky_terrain/textures/rocky_terrain_02_diff_4k.jpg");
     LoadTextureImage("../../data/tc-earth_nightmap_citylights.gif");
 
     ObjModel spheremodel("../../data/sphere.obj");
