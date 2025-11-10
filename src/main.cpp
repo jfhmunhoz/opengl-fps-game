@@ -22,6 +22,7 @@
 
 #include "objmodel.h"
 
+#define SENSITIVITY 0.02
 
 void PushMatrix(glm::mat4 M);
 void PopMatrix(glm::mat4& M);
@@ -121,7 +122,7 @@ float g_ViewX;
 float g_ViewY;
 float g_ViewZ;
 //Variveis que controlam movimento
-float g_CameraVelocity = 1.0f;
+float g_CameraVelocity = 3.0f;
 bool g_Front = false;
 bool g_Back = false;
 bool g_Right = false;
@@ -165,6 +166,7 @@ int main(int argc, char* argv[])
     glfwSetMouseButtonCallback(window, MouseButtonCallback);
     glfwSetCursorPosCallback(window, CursorPosCallback);
     glfwSetScrollCallback(window, ScrollCallback);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     glfwMakeContextCurrent(window);
 
@@ -185,7 +187,7 @@ int main(int argc, char* argv[])
     LoadTextureImage("../../data/rocky_terrain/textures/rocky_terrain_02_diff_4k.jpg");
     LoadTextureImage("../../data/tc-earth_nightmap_citylights.gif");
 
-    ObjModel spheremodel("../../data/sphere.obj");
+    ObjModel spheremodel("../../data/gun/GUN.obj");
     ComputeNormals(&spheremodel);
     BuildTrianglesAndAddToVirtualScene(&spheremodel);
 
@@ -290,7 +292,7 @@ int main(int argc, char* argv[])
               * Matrix_Rotate_Y(g_AngleY + (float)glfwGetTime() * 0.1f);
         glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
         glUniform1i(g_object_id_uniform, SPHERE);
-        DrawVirtualObject("the_sphere");
+        DrawVirtualObject("gun");
 
 
         model = Matrix_Scale(100.0f, 1.0f, 100.0f)
@@ -796,8 +798,8 @@ void CursorPosCallback(GLFWwindow* window, double xpos, double ypos)
         float dx = xpos - g_LastCursorPosX;
         float dy = ypos - g_LastCursorPosY;
 
-        g_ViewTheta -= 0.01f*dx;
-        g_ViewPhi   -= 0.01f*dy;
+        g_ViewTheta -= SENSITIVITY*dx;
+        g_ViewPhi   -= SENSITIVITY*dy;
 
         float phimax = 3.141592f/2;
         float phimin = -phimax;
@@ -812,29 +814,7 @@ void CursorPosCallback(GLFWwindow* window, double xpos, double ypos)
         g_LastCursorPosY = ypos;
     }
 
-    if (g_RightMouseButtonPressed)
-    {
-        float dx = xpos - g_LastCursorPosX;
-        float dy = ypos - g_LastCursorPosY;
 
-        g_ForearmAngleZ -= 0.01f*dx;
-        g_ForearmAngleX += 0.01f*dy;
-
-        g_LastCursorPosX = xpos;
-        g_LastCursorPosY = ypos;
-    }
-
-    if (g_MiddleMouseButtonPressed)
-    {
-        float dx = xpos - g_LastCursorPosX;
-        float dy = ypos - g_LastCursorPosY;
-
-        g_TorsoPositionX += 0.01f*dx;
-        g_TorsoPositionY -= 0.01f*dy;
-
-        g_LastCursorPosX = xpos;
-        g_LastCursorPosY = ypos;
-    }
 }
 
 
