@@ -122,7 +122,7 @@ float g_ViewX;
 float g_ViewY;
 float g_ViewZ;
 //Variveis que controlam movimento
-float g_CameraVelocity = 3.0f;
+float g_CameraVelocity = 5.0f;
 bool g_Front = false;
 bool g_Back = false;
 bool g_Right = false;
@@ -252,7 +252,8 @@ int main(int argc, char* argv[])
         camera_displacement = g_CameraVelocity * g_ElapsedSeconds *  camera_direction;
         
         g_CameraX += camera_displacement.x;
-        g_CameraY += camera_displacement.y;
+        g_CameraY = 1.0f;
+        //g_CameraY += camera_displacement.y;
         g_CameraZ += camera_displacement.z;
 
         glm::vec4 camera_position_c  = glm::vec4(g_CameraX, g_CameraY, g_CameraZ, 1.0f);
