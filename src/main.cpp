@@ -791,22 +791,22 @@ void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 
 void CursorPosCallback(GLFWwindow* window, double xpos, double ypos)
 {
-    if (g_LeftMouseButtonPressed)
+    if (1)
     {
         float dx = xpos - g_LastCursorPosX;
         float dy = ypos - g_LastCursorPosY;
 
-        g_CameraTheta -= 0.01f*dx;
-        g_CameraPhi   += 0.01f*dy;
+        g_ViewTheta -= 0.01f*dx;
+        g_ViewPhi   -= 0.01f*dy;
 
         float phimax = 3.141592f/2;
         float phimin = -phimax;
 
-        if (g_CameraPhi > phimax)
-            g_CameraPhi = phimax;
+        if (g_ViewPhi > phimax)
+            g_ViewPhi = phimax;
 
-        if (g_CameraPhi < phimin)
-            g_CameraPhi = phimin;
+        if (g_ViewPhi < phimin)
+            g_ViewPhi = phimin;
 
         g_LastCursorPosX = xpos;
         g_LastCursorPosY = ypos;
