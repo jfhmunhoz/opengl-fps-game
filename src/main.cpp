@@ -776,28 +776,23 @@ void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 
 void CursorPosCallback(GLFWwindow* window, double xpos, double ypos)
 {
-    if (1)
-    {
-        float dx = xpos - g_LastCursorPosX;
-        float dy = ypos - g_LastCursorPosY;
+    float dx = xpos - g_LastCursorPosX;
+    float dy = ypos - g_LastCursorPosY;
 
-        g_ViewTheta -= SENSITIVITY*dx;
-        g_ViewPhi   -= SENSITIVITY*dy;
+    g_ViewTheta -= SENSITIVITY * dx;
+    g_ViewPhi -= SENSITIVITY * dy;
 
-        float phimax = 3.141592f/2;
-        float phimin = -phimax;
+    float phimax = 3.141592f / 2;
+    float phimin = -phimax;
 
-        if (g_ViewPhi > phimax)
-            g_ViewPhi = phimax;
+    if (g_ViewPhi > phimax)
+        g_ViewPhi = phimax;
 
-        if (g_ViewPhi < phimin)
-            g_ViewPhi = phimin;
+    if (g_ViewPhi < phimin)
+        g_ViewPhi = phimin;
 
-        g_LastCursorPosX = xpos;
-        g_LastCursorPosY = ypos;
-    }
-
-
+    g_LastCursorPosX = xpos;
+    g_LastCursorPosY = ypos;
 }
 
 
@@ -1181,6 +1176,7 @@ void PrintObjModelInfo(ObjModel* model)
     printf("\n");
   }
 }
+
 
 
 
