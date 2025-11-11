@@ -88,12 +88,6 @@ float g_CameraTheta = 0.0f;
 float g_CameraPhi = 0.0f;
 float g_CameraDistance = 3.5f;
 
-float g_ForearmAngleZ = 0.0f;
-float g_ForearmAngleX = 0.0f;
-
-float g_TorsoPositionX = 0.0f;
-float g_TorsoPositionY = 0.0f;
-
 bool g_UsePerspectiveProjection = true;
 
 bool g_ShowInfoText = true;
@@ -187,24 +181,17 @@ int main(int argc, char* argv[])
     LoadTextureImage("../../data/rocky_terrain/textures/rocky_terrain_02_diff_4k.jpg");
     LoadTextureImage("../../data/tc-earth_nightmap_citylights.gif");
 
-    ObjModel spheremodel("../../data/gun/GUN.obj");
-    ComputeNormals(&spheremodel);
-    BuildTrianglesAndAddToVirtualScene(&spheremodel);
+    ObjModel gunmodel("../../data/gun/GUN.obj");
+    ComputeNormals(&gunmodel);
+    BuildTrianglesAndAddToVirtualScene(&gunmodel);
 
     ObjModel planemodel("../../data/plane.obj");
     ComputeNormals(&planemodel);
     BuildTrianglesAndAddToVirtualScene(&planemodel);
 
-    if ( argc > 1 )
-    {
-        ObjModel model(argv[1]);
-        BuildTrianglesAndAddToVirtualScene(&model);
-    }
-
     TextRendering_Init();
 
     glEnable(GL_DEPTH_TEST);
-
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
@@ -284,7 +271,7 @@ int main(int argc, char* argv[])
         glUniformMatrix4fv(g_view_uniform       , 1 , GL_FALSE , glm::value_ptr(view));
         glUniformMatrix4fv(g_projection_uniform , 1 , GL_FALSE , glm::value_ptr(projection));
 
-        #define SPHERE 0
+        #define GUN 0
         #define PLANE  2
 
         model = Matrix_Translate(-1.0f,0.0f,0.0f)
@@ -292,7 +279,7 @@ int main(int argc, char* argv[])
               * Matrix_Rotate_X(0.2f)
               * Matrix_Rotate_Y(g_AngleY + (float)glfwGetTime() * 0.1f);
         glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(g_object_id_uniform, SPHERE);
+        glUniform1i(g_object_id_uniform, GUN);
         DrawVirtualObject("gun");
 
 
@@ -858,10 +845,6 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
         g_AngleX = 0.0f;
         g_AngleY = 0.0f;
         g_AngleZ = 0.0f;
-        g_ForearmAngleX = 0.0f;
-        g_ForearmAngleZ = 0.0f;
-        g_TorsoPositionX = 0.0f;
-        g_TorsoPositionY = 0.0f;
     }
     if (key == GLFW_KEY_P && action == GLFW_PRESS)
     {

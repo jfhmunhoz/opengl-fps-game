@@ -19,7 +19,7 @@ uniform mat4 view;
 uniform mat4 projection;
 
 // Identificador que define qual objeto está sendo desenhado no momento
-#define SPHERE 0
+#define GUN 0
 #define BUNNY  1
 #define PLANE  2
 uniform int object_id;
