@@ -5,21 +5,35 @@ class Camera {
 public:
 
 private:
+	//perspective
 	bool perspectiveProjection;
+	float field_of_view;
+	float nearplane;
+	float farplane;
+
+	//orto
+	float cameraDistance;
+	float t;
+	float b;
+	float r;
+	float l;
 
 	//Posicao da camera
-	float g_CameraX = 0.0f;
-	float g_CameraY = 0.5f;
-	float g_CameraZ = -3.0f;
+	float cameraX = 0.0f;
+	float cameraY = 0.5f;
+	float cameraZ = -3.0f;
+
+	float cameraTheta = 0.0f;
+	float cameraPhi = 0.0f;
 
 	//View Vector
-	float g_ViewRadius = 2.5f;
-	float g_ViewTheta = 0.0f;
-	float g_ViewPhi = 0.0f;
+	float ViewRadius = 2.5f;
+	float ViewTheta = 0.0f;
+	float ViewPhi = 0.0f;
 
-	float g_ViewX;
-	float g_ViewY;
-	float g_ViewZ;
+	float ViewX;
+	float ViewY;
+	float ViewZ;
 }
 
 #endif

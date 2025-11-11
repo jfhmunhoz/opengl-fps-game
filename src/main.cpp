@@ -209,11 +209,6 @@ int main(int argc, char* argv[])
         float z = r*cos(g_CameraPhi)*cos(g_CameraTheta);
         float x = r*cos(g_CameraPhi)*sin(g_CameraTheta);
 
-        //glm::vec4 camera_position_c  = glm::vec4(x,y,z,1.0f);
-        //glm::vec4 camera_lookat_l    = glm::vec4(0.0f,0.0f,0.0f,1.0f);
-        //glm::vec4 camera_view_vector = camera_lookat_l - camera_position_c;
-        //glm::vec4 camera_up_vector   = glm::vec4(0.0f,1.0f,0.0f,0.0f);
-
         //Definindo o view vector baseado no angulo de visao da camera
         g_ViewY = sin(g_ViewPhi);
         g_ViewZ = cos(g_ViewPhi)*cos(g_ViewTheta);
