@@ -1,6 +1,6 @@
-
-void Window::init(){
-	    int success = glfwInit();
+#include 
+int Window::init(){
+    int success = glfwInit();
     if (!success)
     {
         fprintf(stderr, "ERROR: glfwInit() failed.\n");

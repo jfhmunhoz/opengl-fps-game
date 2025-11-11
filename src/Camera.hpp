@@ -7,16 +7,16 @@ public:
 private:
 	//perspective
 	bool perspectiveProjection;
-	float field_of_view;
+	float fov;
 	float nearplane;
 	float farplane;
 
 	//orto
 	float cameraDistance;
-	float t;
-	float b;
-	float r;
-	float l;
+	float top;
+	float bottom;
+	float right;
+	float left;
 
 	//Posicao da camera
 	float cameraX = 0.0f;
@@ -27,13 +27,13 @@ private:
 	float cameraPhi = 0.0f;
 
 	//View Vector
-	float ViewRadius = 2.5f;
-	float ViewTheta = 0.0f;
-	float ViewPhi = 0.0f;
+	float viewRadius = 2.5f;
+	float viewTheta = 0.0f;
+	float viewPhi = 0.0f;
 
-	float ViewX;
-	float ViewY;
-	float ViewZ;
+	float viewX;
+	float viewY;
+	float viewZ;
 }
 
 #endif
