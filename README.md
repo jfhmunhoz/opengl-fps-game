@@ -8,7 +8,7 @@ This is the final project for the Fundamentals of Computer Graphics course (INF/
 ## Team Members
 
 * **Joao Francsico Hirtenkauf Munhoz** - 00275634
-* **[Student 2 Name]** - [Student ID]
+* **Mario Augusto Brum da Silveira** - 00322868
 
 
 ## Application Screenshots
