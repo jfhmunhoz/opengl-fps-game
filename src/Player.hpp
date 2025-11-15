@@ -2,9 +2,22 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
+#include <glm/glm.hpp>
+
 class Player
 {
 public:
+    Player();
+    void setPosition(float x, float y, float z);
+    glm::vec3 getPosition() const;
+    void update(float deltaTime);
+    void shoot();
+    void reload();
+    int getAmmo() const;
+    int getScore() const;
+    void addScore(int points);
+    Camera& getCamera();
+    
 private:
     // Posicao player
     float posX = 0.0f;
@@ -14,13 +27,10 @@ private:
     Camera camera;
     int nroBalas = 30;
     int pontuacao = 0;
-    void reload();
-    void shot();
+    int maxAmmo = 30;
+    
     void resetPoints();
     void addPoints();
-    
-    // float cameraTheta = 0.0f;
-    // float cameraPhi = 0.0f;
-}
+};
 
 #endif

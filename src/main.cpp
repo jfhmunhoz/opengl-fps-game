@@ -178,8 +178,13 @@ int main(int argc, char* argv[])
 
     LoadShadersFromFiles();
 
-    LoadTextureImage("../../data/rocky_terrain/textures/rocky_terrain_02_diff_4k.jpg");
+    LoadTextureImage("../../data/tc-earth_daymap_surface.jpg");      // TextureImage0
     LoadTextureImage("../../data/tc-earth_nightmap_citylights.gif");
+    LoadTextureImage("../../data/rocky_terrain/textures/rocky_terrain_02_diff_4k.jpg");
+
+    ObjModel spheremodel("../../data/sphere.obj");
+    ComputeNormals(&spheremodel);
+    BuildTrianglesAndAddToVirtualScene(&spheremodel);
 
     ObjModel gunmodel("../../data/gun/GUN.obj");
     ComputeNormals(&gunmodel);
@@ -234,8 +239,8 @@ int main(int argc, char* argv[])
         camera_displacement = g_CameraVelocity * g_ElapsedSeconds *  camera_direction;
         
         g_CameraX += camera_displacement.x;
-        g_CameraY = 1.0f;
-        //g_CameraY += camera_displacement.y;
+        //g_CameraY = 1.0f;
+        g_CameraY += camera_displacement.y;
         g_CameraZ += camera_displacement.z;
 
         glm::vec4 camera_position_c  = glm::vec4(g_CameraX, g_CameraY, g_CameraZ, 1.0f);
@@ -266,7 +271,8 @@ int main(int argc, char* argv[])
         glUniformMatrix4fv(g_view_uniform       , 1 , GL_FALSE , glm::value_ptr(view));
         glUniformMatrix4fv(g_projection_uniform , 1 , GL_FALSE , glm::value_ptr(projection));
 
-        #define GUN 0
+        #define SPHERE 0
+        #define GUN 1
         #define PLANE  2
 
         model = Matrix_Translate(-1.0f,0.0f,0.0f)

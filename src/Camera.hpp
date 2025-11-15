@@ -1,8 +1,22 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
+#include <glm/glm.hpp>
+#include <cmath>
+
 class Camera {
 public:
+	Camera();
+	void setPosition(float x, float y, float z);
+	void setViewDirection(float theta, float phi);
+	glm::vec3 getPosition() const;
+	glm::vec3 getViewDirection() const;
+	void setPerspective(bool perspective);
+	void setFOV(float newFov);
+	float getFOV() const;
+	float getNearPlane() const;
+	float getFarPlane() const;
+	bool isPerspective() const;
 
 private:
 	//perspective
@@ -34,6 +48,8 @@ private:
 	float viewX;
 	float viewY;
 	float viewZ;
-}
+	
+	void updateViewVector();
+};
 
 #endif
