@@ -23,6 +23,8 @@
 #include "objmodel.h"
 
 #define SENSITIVITY 0.02
+#define M_PI   3.14159265358979323846
+#define M_PI_2 1.57079632679489661923
 
 void PushMatrix(glm::mat4 M);
 void PopMatrix(glm::mat4& M);
@@ -104,8 +106,8 @@ GLuint g_NumLoadedTextures = 0;
 
 //Posicao da camera
 float g_CameraX = 0.0f;
-float g_CameraY = 0.5f;
-float g_CameraZ = -3.0f;
+float g_CameraY = 1.0f;
+float g_CameraZ = 0.0f;
 
 //View Vector
 float g_ViewRadius = 2.5f;
@@ -178,8 +180,8 @@ int main(int argc, char* argv[])
 
     LoadShadersFromFiles();
 
-    LoadTextureImage("../../data/tc-earth_daymap_surface.jpg");      // TextureImage0
-    LoadTextureImage("../../data/tc-earth_nightmap_citylights.gif");
+    LoadTextureImage("../../data/brick_moss/textures/brick_moss_001_diff_4k.jpg");      // TextureImage0
+    LoadTextureImage("../../data/rusty_metal/textures/rusty_metal_grid_diff_4k.jpg");
     LoadTextureImage("../../data/rocky_terrain/textures/rocky_terrain_02_diff_4k.jpg");
 
     ObjModel spheremodel("../../data/sphere.obj");
@@ -239,8 +241,8 @@ int main(int argc, char* argv[])
         camera_displacement = g_CameraVelocity * g_ElapsedSeconds *  camera_direction;
         
         g_CameraX += camera_displacement.x;
-        //g_CameraY = 1.0f;
-        g_CameraY += camera_displacement.y;
+        g_CameraY = 1.0f;
+        //g_CameraY += camera_displacement.y;
         g_CameraZ += camera_displacement.z;
 
         glm::vec4 camera_position_c  = glm::vec4(g_CameraX, g_CameraY, g_CameraZ, 1.0f);
@@ -275,10 +277,36 @@ int main(int argc, char* argv[])
         #define GUN 1
         #define PLANE  2
 
-        model = Matrix_Translate(-1.0f,0.0f,0.0f)
-              * Matrix_Rotate_Z(0.6f)
-              * Matrix_Rotate_X(0.2f)
-              * Matrix_Rotate_Y(g_AngleY + (float)glfwGetTime() * 0.1f);
+        //ceiling
+        model = 
+                Matrix_Translate(0.0f,4.0f,0.0f)
+              * Matrix_Rotate_Z(M_PI)
+              * Matrix_Scale(10.0f, 1.0f, 10.0f);
+        glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        glUniform1i(g_object_id_uniform, PLANE);
+        DrawVirtualObject("the_plane");
+        
+        //floor
+        model = Matrix_Scale(10.0f, 1.0f, 10.0f)
+              * Matrix_Translate(0.0f,0.0f,0.0f);
+        glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        glUniform1i(g_object_id_uniform, PLANE);
+        DrawVirtualObject("the_plane");
+
+        //wall
+        model = 
+                Matrix_Translate(10.0f,2.0f,0.0f)
+              * Matrix_Rotate_Z(M_PI_2)
+              * Matrix_Scale(2.0f, 1.0f, 10.0f);
+        glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        glUniform1i(g_object_id_uniform, PLANE);
+        DrawVirtualObject("the_plane");
+
+        model = 
+                Matrix_Translate(-1.0f,0.6f,0.0f)
+              * Matrix_Rotate_Y(g_CameraPhi)
+              * Matrix_Rotate_Z(g_CameraTheta)
+              * Matrix_Scale(0.25f,0.25f,0.25f);
         glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
         glUniform1i(g_object_id_uniform, GUN);
         DrawVirtualObject("gun");
@@ -288,7 +316,7 @@ int main(int argc, char* argv[])
               * Matrix_Translate(0.0f,-1.1f,0.0f);
         glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
         glUniform1i(g_object_id_uniform, PLANE);
-        DrawVirtualObject("the_plane");
+        //DrawVirtualObject("the_plane");
 
         TextRendering_ShowEulerAngles(window);
         TextRendering_ShowProjection(window);
@@ -328,8 +356,8 @@ void LoadTextureImage(const char* filename)
     glGenTextures(1, &texture_id);
     glGenSamplers(1, &sampler_id);
 
-    glSamplerParameteri(sampler_id, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glSamplerParameteri(sampler_id, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glSamplerParameteri(sampler_id, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glSamplerParameteri(sampler_id, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
     glSamplerParameteri(sampler_id, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glSamplerParameteri(sampler_id, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

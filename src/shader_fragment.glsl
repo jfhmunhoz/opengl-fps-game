@@ -68,6 +68,20 @@ void main()
     float U = 0.0;
     float V = 0.0;
 
+    if ( object_id == SPHERE )
+    {
+        vec4 bbox_center = (bbox_min + bbox_max) / 2.0;
+
+        float raio = 1.0;
+        vec4 p_linha = bbox_center + raio * normalize(position_model - bbox_center);
+        vec4 p_vector = p_linha - bbox_center;
+
+        float theta = atan(p_vector.x, p_vector.z);
+        float phi = asin(p_vector.y / raio);
+
+        U = (theta + M_PI) / (2 * M_PI);
+        V = (phi + M_PI_2) / M_PI;
+    }
     if ( object_id == PLANE )
     {
         // Coordenadas de textura do plano, obtidas do arquivo OBJ.
