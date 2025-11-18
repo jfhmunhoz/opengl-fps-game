@@ -196,8 +196,8 @@ void main()
     if ( object_id == GUN )
     {
         // Coordenadas de textura do plano, obtidas do arquivo OBJ.
-        V = texcoords.x;
-        U = texcoords.y * 5.0f;
+        U = texcoords.x;
+        V = texcoords.y;
 
         // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
         vec3 Kd0 = texture(TextureImage3, vec2(U,V)).rgb;

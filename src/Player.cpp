@@ -1,7 +1,7 @@
 #include "Player.hpp"
 
 Player::Player()
-    : posX(0.0f), posY(0.0f), posZ(0.0f), nroBalas(30), pontuacao(0), maxAmmo(30)
+    : posX(0.0f), posY(2.0f), posZ(0.0f), nroBalas(6), pontuacao(0), maxAmmo(6)
 {
 }
 
