@@ -36,6 +36,7 @@ uniform vec4 bbox_max;
 uniform sampler2D TextureImage0;
 uniform sampler2D TextureImage1;
 uniform sampler2D TextureImage2;
+uniform sampler2D TextureImage3;
 
 // O valor de saída ("out") de um Fragment Shader é a cor final do fragmento.
 out vec4 color;
@@ -175,8 +176,8 @@ void main()
     if ( object_id == BRICK_WALL )
     {
         // Coordenadas de textura do plano, obtidas do arquivo OBJ.
-        V = texcoords.x;
-        U = texcoords.y * 5.0f;
+        V = texcoords.x * 2.0f;
+        U = texcoords.y * 10.0f;
 
         // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
         vec3 Kd0 = texture(TextureImage2, vec2(U,V)).rgb;
@@ -199,7 +200,7 @@ void main()
         U = texcoords.y * 5.0f;
 
         // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
-        vec3 Kd0 = vec3(0.0f,0.0f,0.0f);
+        vec3 Kd0 = texture(TextureImage3, vec2(U,V)).rgb;
         // Equação de Iluminação
         float lambert = max(0,dot(n,l));
 

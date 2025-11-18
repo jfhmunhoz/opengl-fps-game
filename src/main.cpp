@@ -187,6 +187,7 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
     LoadTextureImage("../../data/concrete_floor/textures/concrete_floor_worn_001_diff_4k.jpg");
     LoadTextureImage("../../data/rusty_metal/textures/rusty_metal_grid_diff_4k.jpg");
     LoadTextureImage("../../data/damaged_plaster/textures/damaged_plaster_diff_4k.jpg");
+    LoadTextureImage("../../data/gun/textures/GUN_Material.003_BaseColor.jpg");
 
     ObjModel spheremodel("../../data/sphere.obj");
     ComputeNormals(&spheremodel);
@@ -245,7 +246,7 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         camera_displacement = g_CameraVelocity * g_ElapsedSeconds *  camera_direction;
         
         g_CameraX += camera_displacement.x;
-        g_CameraY = 1.0f;
+        g_CameraY = 2.0f;
         //g_CameraY += camera_displacement.y;
         g_CameraZ += camera_displacement.z;
 
@@ -356,10 +357,10 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         //gun
         model = 
                 //Matrix_Translate(1.0f,1.0f,1.0f)
-                Matrix_Translate(g_CameraX, 0.8f, g_CameraZ)
+                Matrix_Translate(g_CameraX, g_CameraY, g_CameraZ)
               * Matrix_Rotate_Y(g_ViewTheta)
               * Matrix_Rotate_X(-g_ViewPhi)
-              * Matrix_Translate(-0.4f,0.0f,1.0f)
+              * Matrix_Translate(-0.4f,-0.2f,1.0f)
               * Matrix_Rotate_Y(M_PI)
               * Matrix_Scale(0.25f,0.25f,0.25f);
         glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
@@ -479,6 +480,7 @@ void LoadShadersFromFiles()
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage0"), 0);
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage1"), 1);
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage2"), 2);
+    glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage3"), 3);
     glUseProgram(0);
 }
 
@@ -1060,7 +1062,7 @@ void TextRendering_ShowProjection(GLFWwindow* window)
     float charwidth = TextRendering_CharWidth(window);
 
     if ( g_UsePerspectiveProjection )
-        TextRendering_PrintString(window, "Perspective", 1.0f-13*charwidth, -1.0f+2*lineheight/10, 1.0f);
+        TextRendering_PrintString(window, "Perspective", 1.0f-4*13*charwidth, -1.0f+2*lineheight/10, 4.0f);
     else
         TextRendering_PrintString(window, "Orthographic", 1.0f-13*charwidth, -1.0f+2*lineheight/10, 1.0f);
 }
