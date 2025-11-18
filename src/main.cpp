@@ -360,7 +360,7 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
                 Matrix_Translate(g_CameraX, g_CameraY, g_CameraZ)
               * Matrix_Rotate_Y(g_ViewTheta)
               * Matrix_Rotate_X(-g_ViewPhi)
-              * Matrix_Translate(-0.4f,-0.2f,1.0f)
+              * Matrix_Translate(-(!g_RightMouseButtonPressed)*0.4f,-0.3f,0.8f)
               * Matrix_Rotate_Y(M_PI)
               * Matrix_Scale(0.25f,0.25f,0.25f);
         glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
