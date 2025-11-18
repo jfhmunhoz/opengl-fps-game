@@ -115,7 +115,7 @@ float g_ViewTheta = 0.0f;
 float g_ViewPhi = 0.0f;
 
 float g_ViewX;
-float g_ViewY;
+float g_ViewY = 1.0f;
 float g_ViewZ;
 //Variveis que controlam movimento
 float g_CameraVelocity = 5.0f;
@@ -129,9 +129,9 @@ float g_OldSeconds = 0.0f;
 float g_Seconds;
 float g_ElapsedSeconds;
 
-float g_alvoX;
-float g_alvoY;
-float g_alvoZ;
+float g_alvoX = 10.0f;
+float g_alvoY = 0.0f;
+float g_alvoZ = 10.0f;
 float g_alvoVelocity = 0.5f;
 
 int main(int argc, char* argv[])
@@ -289,8 +289,9 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         #define METAL_WALL 4
         #define CEILING 5
 
-        glm::vec4 alvo_direction = glm::vec4((g_CameraX - g_alvoX), 0.0f, (g_CameraZ - g_alvoZ), 0.0f);
-        glm::vec4 alvo_displacement = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
+        glm::vec3 alvo_direction = glm::vec3((g_CameraX - g_alvoX), 0.0f, (g_CameraZ - g_alvoZ));
+        alvo_direction = glm::normalize(alvo_direction);
+        glm::vec3 alvo_displacement = glm::vec3(0.0f, 0.0f, 0.0f);
 
         alvo_displacement = g_alvoVelocity * g_ElapsedSeconds *  alvo_direction;
         
