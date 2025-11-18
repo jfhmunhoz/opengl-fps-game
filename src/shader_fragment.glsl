@@ -25,6 +25,7 @@ uniform mat4 projection;
 #define BRICK_WALL 3
 #define METAL_WALL 4
 #define CEILING 5
+#define GHOST 6
 
 uniform int object_id;
 
@@ -37,6 +38,7 @@ uniform sampler2D TextureImage0;
 uniform sampler2D TextureImage1;
 uniform sampler2D TextureImage2;
 uniform sampler2D TextureImage3;
+uniform sampler2D TextureImage4;
 
 // O valor de saída ("out") de um Fragment Shader é a cor final do fragmento.
 out vec4 color;
@@ -156,8 +158,8 @@ void main()
     if ( object_id == METAL_WALL )
     {
         // Coordenadas de textura do plano, obtidas do arquivo OBJ.
-        U = texcoords.x * 2.0f;
-        V = texcoords.y * 10.0f;
+        V = texcoords.x * 2.0f;
+        U = texcoords.y * 10.0f;
 
         // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
         vec3 Kd0 = texture(TextureImage1, vec2(U,V)).rgb;
@@ -213,5 +215,43 @@ void main()
         // Veja https://en.wikipedia.org/w/index.php?title=Gamma_correction&oldid=751281772#Windows.2C_Mac.2C_sRGB_and_TV.2Fvideo_standard_gammas
         color.rgb = pow(color.rgb, vec3(1.0,1.0,1.0)/2.2);
     }
+    if ( object_id == GHOST )
+    {
+        // Coordenadas de textura do plano, obtidas do arquivo OBJ.
+        U = texcoords.x;
+        V = texcoords.y;
+
+        // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
+        vec3 Kd0 = texture(TextureImage4, vec2(U,V)).rgb;
+        // Equação de Iluminação
+        float lambert = max(0,dot(n,l));
+
+
+        color.rgb = Kd0;
+
+        color.a = 1;
+
+        // Cor final com correção gamma, considerando monitor sRGB.
+        // Veja https://en.wikipedia.org/w/index.php?title=Gamma_correction&oldid=751281772#Windows.2C_Mac.2C_sRGB_and_TV.2Fvideo_standard_gammas
+        color.rgb = pow(color.rgb, vec3(1.0,1.0,1.0)/2.2);
+    }
+    /*else
+    {
+        U = texcoords.x;
+        V = texcoords.y;
+        // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
+        vec3 Kd0 = vec3(0.5f,0.5f,0.5f);
+        // Equação de Iluminação
+        float lambert = max(0,dot(n,l));
+
+
+        color.rgb = Kd0;
+
+        color.a = 1;
+
+        // Cor final com correção gamma, considerando monitor sRGB.
+        // Veja https://en.wikipedia.org/w/index.php?title=Gamma_correction&oldid=751281772#Windows.2C_Mac.2C_sRGB_and_TV.2Fvideo_standard_gammas
+        color.rgb = pow(color.rgb, vec3(1.0,1.0,1.0)/2.2);
+    }*/
 } 
 

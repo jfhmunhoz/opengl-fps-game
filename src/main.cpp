@@ -201,6 +201,10 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
     ComputeNormals(&planemodel);
     BuildTrianglesAndAddToVirtualScene(&planemodel);
 
+    ObjModel robotmodel("../../data/robot/robot.obj");
+    ComputeNormals(&robotmodel);
+    BuildTrianglesAndAddToVirtualScene(&robotmodel);
+
     TextRendering_Init();
 
     glEnable(GL_DEPTH_TEST);
@@ -294,13 +298,15 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         g_alvoY = 0.5f;
         g_alvoZ += alvo_displacement.z;
 
+        float enemy_angle = -std::atan2(alvo_direction.z, alvo_direction.x);
         //alvo
         model = 
                 Matrix_Translate(g_alvoX,g_alvoY,g_alvoZ)
-              * Matrix_Scale(0.25f, 1.0f, 0.25f);
+              * Matrix_Rotate_Y(enemy_angle)
+              * Matrix_Scale(0.1f,0.1f,0.1f);
         glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
         glUniform1i(g_object_id_uniform, SPHERE);
-        DrawVirtualObject("the_sphere");
+        DrawVirtualObject("the_robot");
 
         //ceiling
         model = 
