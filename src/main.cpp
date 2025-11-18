@@ -182,7 +182,7 @@ int main(int argc, char* argv[])
 
     LoadTextureImage("../../data/brick_moss/textures/brick_moss_001_diff_4k.jpg");      // TextureImage0
     LoadTextureImage("../../data/rusty_metal/textures/rusty_metal_grid_diff_4k.jpg");
-    LoadTextureImage("../../data/rocky_terrain/textures/rocky_terrain_02_diff_4k.jpg");
+    LoadTextureImage("../../data/castle_brick/textures/castle_brick_02_red_diff_4k.jpg");
 
     ObjModel spheremodel("../../data/sphere.obj");
     ComputeNormals(&spheremodel);
@@ -276,6 +276,8 @@ int main(int argc, char* argv[])
         #define SPHERE 0
         #define GUN 1
         #define PLANE  2
+        #define BRICK_WALL 3
+        #define METAL_WALL 4
 
         //ceiling
         model = 
@@ -295,11 +297,38 @@ int main(int argc, char* argv[])
 
         //wall
         model = 
+                Matrix_Rotate_Y(3*M_PI_2)
+              * Matrix_Translate(10.0f,2.0f,0.0f)
+              * Matrix_Rotate_Z(M_PI_2)
+              * Matrix_Scale(2.0f, 1.0f, 10.0f);
+        glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        glUniform1i(g_object_id_uniform, METAL_WALL);
+        DrawVirtualObject("the_plane");
+
+        model = 
+                Matrix_Rotate_Y(2*M_PI_2)
+              * Matrix_Translate(10.0f,2.0f,0.0f)
+              * Matrix_Rotate_Z(M_PI_2)
+              * Matrix_Scale(2.0f, 1.0f, 10.0f);
+        glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        glUniform1i(g_object_id_uniform, BRICK_WALL);
+        DrawVirtualObject("the_plane");
+
+        model = 
+                Matrix_Rotate_Y(M_PI_2)
+              * Matrix_Translate(10.0f,2.0f,0.0f)
+              * Matrix_Rotate_Z(M_PI_2)
+              * Matrix_Scale(2.0f, 1.0f, 10.0f);
+        glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        glUniform1i(g_object_id_uniform, BRICK_WALL);
+        DrawVirtualObject("the_plane");
+
+        model = 
                 Matrix_Translate(10.0f,2.0f,0.0f)
               * Matrix_Rotate_Z(M_PI_2)
               * Matrix_Scale(2.0f, 1.0f, 10.0f);
         glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(g_object_id_uniform, PLANE);
+        glUniform1i(g_object_id_uniform, BRICK_WALL);
         DrawVirtualObject("the_plane");
 
         model = 
