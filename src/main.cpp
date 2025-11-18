@@ -129,51 +129,55 @@ float g_OldSeconds = 0.0f;
 float g_Seconds;
 float g_ElapsedSeconds;
 
+float g_alvoX;
+float g_alvoY;
+float g_alvoZ;
+float g_alvoVelocity = 0.5f;
 
 int main(int argc, char* argv[])
 {
-    int success = glfwInit();
-    if (!success)
-    {
-        fprintf(stderr, "ERROR: glfwInit() failed.\n");
-        std::exit(EXIT_FAILURE);
-    }
-    glfwSetErrorCallback(ErrorCallback);
+int success = glfwInit();
+if (!success)
+{
+    fprintf(stderr, "ERROR: glfwInit() failed.\n");
+    std::exit(EXIT_FAILURE);
+}
+glfwSetErrorCallback(ErrorCallback);
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 
-    #ifdef __APPLE__
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    #endif
+#ifdef __APPLE__
+glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
 
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow* window;
-    window = glfwCreateWindow(800, 600, "OpenGL - FPS Game", NULL, NULL);
-    if (!window)
-    {
-        glfwTerminate();
-        fprintf(stderr, "ERROR: glfwCreateWindow() failed.\n");
-        std::exit(EXIT_FAILURE);
-    }
+GLFWwindow* window;
+window = glfwCreateWindow(800, 600, "OpenGL - FPS Game", NULL, NULL);
+if (!window)
+{
+    glfwTerminate();
+    fprintf(stderr, "ERROR: glfwCreateWindow() failed.\n");
+    std::exit(EXIT_FAILURE);
+}
 
-    glfwSetKeyCallback(window, KeyCallback);
-    glfwSetMouseButtonCallback(window, MouseButtonCallback);
-    glfwSetCursorPosCallback(window, CursorPosCallback);
-    glfwSetScrollCallback(window, ScrollCallback);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+glfwSetKeyCallback(window, KeyCallback);
+glfwSetMouseButtonCallback(window, MouseButtonCallback);
+glfwSetCursorPosCallback(window, CursorPosCallback);
+glfwSetScrollCallback(window, ScrollCallback);
+glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-    glfwMakeContextCurrent(window);
+glfwMakeContextCurrent(window);
 
-    gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
+gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
 
-    glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
-    FramebufferSizeCallback(window, 800, 600);
+glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
+FramebufferSizeCallback(window, 800, 600);
 
-    const GLubyte *vendor      = glGetString(GL_VENDOR);
-    const GLubyte *renderer    = glGetString(GL_RENDERER);
-    const GLubyte *glversion   = glGetString(GL_VERSION);
+const GLubyte *vendor      = glGetString(GL_VENDOR);
+const GLubyte *renderer    = glGetString(GL_RENDERER);
+const GLubyte *glversion   = glGetString(GL_VERSION);
     const GLubyte *glslversion = glGetString(GL_SHADING_LANGUAGE_VERSION);
 
     printf("GPU: %s, %s, OpenGL %s, GLSL %s\n", vendor, renderer, glversion, glslversion);
@@ -279,6 +283,23 @@ int main(int argc, char* argv[])
         #define BRICK_WALL 3
         #define METAL_WALL 4
 
+        glm::vec4 alvo_direction = glm::vec4((g_CameraX - g_alvoX), 0.0f, (g_CameraZ - g_alvoZ), 0.0f);
+        glm::vec4 alvo_displacement = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
+
+        alvo_displacement = g_alvoVelocity * g_ElapsedSeconds *  alvo_direction;
+        
+        g_alvoX += alvo_displacement.x;
+        g_alvoY = 0.5f;
+        g_alvoZ += alvo_displacement.z;
+
+        //alvo
+        model = 
+                Matrix_Translate(g_alvoX,g_alvoY,g_alvoZ)
+              * Matrix_Scale(0.25f, 1.0f, 0.25f);
+        glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        glUniform1i(g_object_id_uniform, SPHERE);
+        DrawVirtualObject("the_sphere");
+
         //ceiling
         model = 
                 Matrix_Translate(0.0f,4.0f,0.0f)
@@ -331,6 +352,7 @@ int main(int argc, char* argv[])
         glUniform1i(g_object_id_uniform, BRICK_WALL);
         DrawVirtualObject("the_plane");
 
+        //gun
         model = 
                 //Matrix_Translate(1.0f,1.0f,1.0f)
                 Matrix_Translate(g_CameraX, 0.8f, g_CameraZ)

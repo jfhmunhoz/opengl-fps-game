@@ -84,6 +84,20 @@ void main()
 
         U = (theta + M_PI) / (2 * M_PI);
         V = (phi + M_PI_2) / M_PI;
+
+        // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
+        vec3 Kd0 = vec3(0.5f,0.5f,0.5f);
+        // Equação de Iluminação
+        float lambert = max(0,dot(n,l));
+
+
+        color.rgb = Kd0;
+
+        color.a = 1;
+
+        // Cor final com correção gamma, considerando monitor sRGB.
+        // Veja https://en.wikipedia.org/w/index.php?title=Gamma_correction&oldid=751281772#Windows.2C_Mac.2C_sRGB_and_TV.2Fvideo_standard_gammas
+        color.rgb = pow(color.rgb, vec3(1.0,1.0,1.0)/2.2);
     }
     if ( object_id == PLANE )
     {
@@ -147,6 +161,26 @@ void main()
 
         // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
         vec3 Kd0 = texture(TextureImage2, vec2(U,V)).rgb;
+        // Equação de Iluminação
+        float lambert = max(0,dot(n,l));
+
+
+        color.rgb = Kd0;
+
+        color.a = 1;
+
+        // Cor final com correção gamma, considerando monitor sRGB.
+        // Veja https://en.wikipedia.org/w/index.php?title=Gamma_correction&oldid=751281772#Windows.2C_Mac.2C_sRGB_and_TV.2Fvideo_standard_gammas
+        color.rgb = pow(color.rgb, vec3(1.0,1.0,1.0)/2.2);
+    }
+    if ( object_id == GUN )
+    {
+        // Coordenadas de textura do plano, obtidas do arquivo OBJ.
+        V = texcoords.x;
+        U = texcoords.y * 5.0f;
+
+        // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
+        vec3 Kd0 = vec3(0.0f,0.0f,0.0f);
         // Equação de Iluminação
         float lambert = max(0,dot(n,l));
 
