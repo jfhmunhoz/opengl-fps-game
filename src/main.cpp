@@ -184,9 +184,9 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
 
     LoadShadersFromFiles();
 
-    LoadTextureImage("../../data/brick_moss/textures/brick_moss_001_diff_4k.jpg");      // TextureImage0
+    LoadTextureImage("../../data/concrete_floor/textures/concrete_floor_worn_001_diff_4k.jpg");
     LoadTextureImage("../../data/rusty_metal/textures/rusty_metal_grid_diff_4k.jpg");
-    LoadTextureImage("../../data/castle_brick/textures/castle_brick_02_red_diff_4k.jpg");
+    LoadTextureImage("../../data/damaged_plaster/textures/damaged_plaster_diff_4k.jpg");
 
     ObjModel spheremodel("../../data/sphere.obj");
     ComputeNormals(&spheremodel);
@@ -282,6 +282,7 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         #define PLANE  2
         #define BRICK_WALL 3
         #define METAL_WALL 4
+        #define CEILING 5
 
         glm::vec4 alvo_direction = glm::vec4((g_CameraX - g_alvoX), 0.0f, (g_CameraZ - g_alvoZ), 0.0f);
         glm::vec4 alvo_displacement = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
@@ -306,7 +307,7 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
               * Matrix_Rotate_Z(M_PI)
               * Matrix_Scale(10.0f, 1.0f, 10.0f);
         glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(g_object_id_uniform, PLANE);
+        glUniform1i(g_object_id_uniform, CEILING);
         DrawVirtualObject("the_plane");
         
         //floor

@@ -24,6 +24,7 @@ uniform mat4 projection;
 #define PLANE  2
 #define BRICK_WALL 3
 #define METAL_WALL 4
+#define CEILING 5
 
 uniform int object_id;
 
@@ -99,6 +100,26 @@ void main()
         // Veja https://en.wikipedia.org/w/index.php?title=Gamma_correction&oldid=751281772#Windows.2C_Mac.2C_sRGB_and_TV.2Fvideo_standard_gammas
         color.rgb = pow(color.rgb, vec3(1.0,1.0,1.0)/2.2);
     }
+    if ( object_id == CEILING )
+    {
+        // Coordenadas de textura do plano, obtidas do arquivo OBJ.
+        U = texcoords.x * 10.0f;
+        V = texcoords.y * 10.0f;
+
+        // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
+        vec3 Kd0 = texture(TextureImage1, vec2(U,V)).rgb;
+        // Equação de Iluminação
+        float lambert = max(0,dot(n,l));
+
+
+        color.rgb = Kd0;
+
+        color.a = 1;
+
+        // Cor final com correção gamma, considerando monitor sRGB.
+        // Veja https://en.wikipedia.org/w/index.php?title=Gamma_correction&oldid=751281772#Windows.2C_Mac.2C_sRGB_and_TV.2Fvideo_standard_gammas
+        color.rgb = pow(color.rgb, vec3(1.0,1.0,1.0)/2.2);
+    }
     if ( object_id == PLANE )
     {
         // Coordenadas de textura do plano, obtidas do arquivo OBJ.
@@ -107,13 +128,11 @@ void main()
 
         // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
         vec3 Kd0 = texture(TextureImage0, vec2(U,V)).rgb;
-        // Coeficiente difuso para imagem 1
-        vec3 Kd1 = texture(TextureImage1, vec2(U,V)).rgb;
         // Equação de Iluminação
         float lambert = max(0,dot(n,l));
 
 
-        color.rgb = Kd0 * (lambert + 0.01) + Kd1 * (1 - lambert);
+        color.rgb = Kd0;
 
         // NOTE: Se você quiser fazer o rendering de objetos transparentes, é
         // necessário:
