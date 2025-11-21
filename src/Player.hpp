@@ -11,6 +11,7 @@ public:
     void setPosition(float x, float y, float z);
     glm::vec3 getPosition() const;
     void update(float deltaTime);
+    int getMaxAmmo() const;
     void shoot();
     void reload();
     int getAmmo() const;

@@ -24,6 +24,11 @@ void Player::update(float deltaTime)
     // Movement, camera updates, etc.
 }
 
+int Player::getMaxAmmo() const
+{
+    return maxAmmo;
+}
+
 void Player::shoot()
 {
     if (nroBalas > 0) {

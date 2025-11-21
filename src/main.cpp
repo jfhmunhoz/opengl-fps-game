@@ -19,6 +19,9 @@
 #include <stb_image.h>
 #include "utils.h"
 #include "matrices.h"
+#include "Player.cpp"
+#include "Camera.cpp"
+// #include <unistd.h>
 
 #include "objmodel.h"
 
@@ -75,6 +78,9 @@ struct SceneObject
 
 std::map<std::string, SceneObject> g_VirtualScene;
 std::stack<glm::mat4>  g_MatrixStack;
+
+Player player;
+
 
 float g_ScreenRatio = 1.0f;
 
@@ -224,6 +230,13 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         float y = r*sin(g_CameraPhi);
         float z = r*cos(g_CameraPhi)*cos(g_CameraTheta);
         float x = r*cos(g_CameraPhi)*sin(g_CameraTheta);
+
+        //Tiro player
+        if(g_LeftMouseButtonPressed){
+            player.shoot();
+            //sleep(1);
+            //TextRendering_ShowProjection(window);
+        }
 
         //Definindo o view vector baseado no angulo de visao da camera
         g_ViewY = sin(g_ViewPhi);
@@ -951,6 +964,7 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
         LoadShadersFromFiles();
         fprintf(stdout,"Shaders recarregados!\n");
         fflush(stdout);
+        player.reload();
     }
 
     if (key == GLFW_KEY_W)
@@ -1068,8 +1082,17 @@ void TextRendering_ShowProjection(GLFWwindow* window)
     float lineheight = TextRendering_LineHeight(window);
     float charwidth = TextRendering_CharWidth(window);
 
+    TextRendering_PrintString(window, (std::to_string(player.getAmmo())+"/"+std::to_string(player.getMaxAmmo())), 1.0f-16*charwidth, -1.0f+2*lineheight/10, 4.0f);
+    //TextRendering_PrintString(window, "-", 1.0f*charwidth, -1.5f*lineheight, 1.5f);
+
+    // TextRendering_PrintString(window, ",", 1.0f*charwidth, -1.0f+0.5*lineheight, 0.5f);
+    // TextRendering_PrintString(window, "- -", 1.0f*charwidth, -1.0f*lineheight, 0.5f);
+    // TextRendering_PrintString(window, "'", 1.0f*charwidth, -1.0f-0.5*lineheight, 0.5f);
+
     if ( g_UsePerspectiveProjection )
-        TextRendering_PrintString(window, "Perspective", 1.0f-4*13*charwidth, -1.0f+2*lineheight/10, 4.0f);
+
+    if ( g_UsePerspectiveProjection )
+        TextRendering_PrintString(window, "Perspective", 1.0f-4*13*charwidth, -1.0f+2*lineheight/10, 1.0f);
     else
         TextRendering_PrintString(window, "Orthographic", 1.0f-13*charwidth, -1.0f+2*lineheight/10, 1.0f);
 }
