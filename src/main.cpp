@@ -21,6 +21,7 @@
 #include "matrices.h"
 #include "Player.cpp"
 #include "Camera.cpp"
+#include "collisions.cpp"
 // #include <unistd.h>
 
 #include "objmodel.h"
@@ -80,8 +81,9 @@ std::map<std::string, SceneObject> g_VirtualScene;
 std::stack<glm::mat4>  g_MatrixStack;
 
 Player player;
+CollisionManager colission;
 
-
+bool hit = false;
 float g_ScreenRatio = 1.0f;
 
 float g_AngleX = 0.0f;
@@ -231,13 +233,6 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         float z = r*cos(g_CameraPhi)*cos(g_CameraTheta);
         float x = r*cos(g_CameraPhi)*sin(g_CameraTheta);
 
-        //Tiro player
-        if(g_LeftMouseButtonPressed){
-            player.shoot();
-            //sleep(1);
-            //TextRendering_ShowProjection(window);
-        }
-
         //Definindo o view vector baseado no angulo de visao da camera
         g_ViewY = sin(g_ViewPhi);
         g_ViewZ = cos(g_ViewPhi)*cos(g_ViewTheta);
@@ -276,7 +271,24 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         float nearplane = -0.1f;
         float farplane  = -100.0f;
 
-        //Mira (diminuir a sense quando mirar??)
+        //Tiro player
+        if(g_LeftMouseButtonPressed){
+            glm::vec3 camPos = glm::vec3(camera_position_c.x,camera_position_c.y,camera_position_c.z);
+            glm::vec3 CamToAlvo = glm::normalize(glm::vec3(g_ViewX, g_ViewY, g_ViewZ));
+            glm::vec3 alvoPos = glm::vec3(g_alvoX, g_alvoY+0.5f, g_alvoZ);
+            if(colission.rayToSphere(camPos,CamToAlvo,alvoPos,0.4f) && player.getAmmo() > 0){
+                hit = true;
+                player.addScore(1);
+            }
+            player.shoot();
+            //sleep(1);
+            //TextRendering_ShowProjection(window);
+        }
+        else{
+            hit = false;
+        }
+
+        //Mira 
         if(g_RightMouseButtonPressed){
             float field_of_view = 3.141592/ 5.0f;
             projection = Matrix_Perspective(field_of_view, g_ScreenRatio, nearplane, farplane);
@@ -1087,13 +1099,25 @@ void TextRendering_ShowProjection(GLFWwindow* window)
 
     float lineheight = TextRendering_LineHeight(window);
     float charwidth = TextRendering_CharWidth(window);
-
+    float x_pos = -1.0f + 2.0f * charwidth; 
+    float y_pos = 1.0f - 2.0f * lineheight; 
+    // TextRendering_PrintString(window, "Score: " + std::to_string(player.getScore()), 1.0f-98*charwidth, -1.0f*-17*lineheight, 2.0f);
+    TextRendering_PrintString(window, "Score: " + std::to_string(player.getScore()), -1.0f+2.0f*charwidth, 1.0f-2.0f*lineheight, 2.0f);
     TextRendering_PrintString(window, (std::to_string(player.getAmmo())+"/"+std::to_string(player.getMaxAmmo())), 1.0f-16*charwidth, -1.0f+2*lineheight/10, 4.0f);
-    //TextRendering_PrintString(window, "-", 1.0f*charwidth, -1.5f*lineheight, 1.5f);
+    //Mira tela
+    TextRendering_PrintString(window,".", -1.0f*charwidth, -0.5f*lineheight, 1.5f);
 
     // TextRendering_PrintString(window, ",", 1.0f*charwidth, -1.0f+0.5*lineheight, 0.5f);
     // TextRendering_PrintString(window, "- -", 1.0f*charwidth, -1.0f*lineheight, 0.5f);
     // TextRendering_PrintString(window, "'", 1.0f*charwidth, -1.0f-0.5*lineheight, 0.5f);
+
+    //hit
+    if(hit){
+        TextRendering_PrintString(window, "H.I.T", 1.0f*charwidth, -1.5f*lineheight, 1.5f);
+    }
+    else{
+        TextRendering_PrintString(window, " ", 1.0f*charwidth, -1.5f*lineheight, 1.5f);
+    }
 
     if ( g_UsePerspectiveProjection )
 
