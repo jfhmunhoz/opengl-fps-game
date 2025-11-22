@@ -260,7 +260,7 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         g_ElapsedSeconds = g_Seconds - g_OldSeconds;
         g_OldSeconds = g_Seconds;
 
-        camera_displacement = g_CameraVelocity * g_ElapsedSeconds *  camera_direction;
+        camera_displacement = ((-3.0f*g_RightMouseButtonPressed)+g_CameraVelocity) * g_ElapsedSeconds *  camera_direction;
         
         g_CameraX += camera_displacement.x;
         g_CameraY = 2.0f;
@@ -276,12 +276,18 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         float nearplane = -0.1f;
         float farplane  = -100.0f;
 
-        if (g_UsePerspectiveProjection)
+        //Mira (diminuir a sense quando mirar??)
+        if(g_RightMouseButtonPressed){
+            float field_of_view = 3.141592/ 5.0f;
+            projection = Matrix_Perspective(field_of_view, g_ScreenRatio, nearplane, farplane);
+        }
+
+        if (g_UsePerspectiveProjection && !g_RightMouseButtonPressed)
         {
             float field_of_view = 3.141592 / 3.0f;
             projection = Matrix_Perspective(field_of_view, g_ScreenRatio, nearplane, farplane);
         }
-        else
+        else if(!g_UsePerspectiveProjection && !g_RightMouseButtonPressed)
         {
             float t = 1.5f*g_CameraDistance/2.5f;
             float b = -t;
