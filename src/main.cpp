@@ -1099,19 +1099,15 @@ void TextRendering_ShowProjection(GLFWwindow* window)
 
     float lineheight = TextRendering_LineHeight(window);
     float charwidth = TextRendering_CharWidth(window);
-    float x_pos = -1.0f + 2.0f * charwidth; 
-    float y_pos = 1.0f - 2.0f * lineheight; 
-    // TextRendering_PrintString(window, "Score: " + std::to_string(player.getScore()), 1.0f-98*charwidth, -1.0f*-17*lineheight, 2.0f);
     TextRendering_PrintString(window, "Score: " + std::to_string(player.getScore()), -1.0f+2.0f*charwidth, 1.0f-2.0f*lineheight, 2.0f);
     TextRendering_PrintString(window, (std::to_string(player.getAmmo())+"/"+std::to_string(player.getMaxAmmo())), 1.0f-16*charwidth, -1.0f+2*lineheight/10, 4.0f);
-    //Mira tela
-    TextRendering_PrintString(window,".", -1.0f*charwidth, -0.5f*lineheight, 1.5f);
+    //Mira1 tela
+    //TextRendering_PrintString(window,".", -1.0f*charwidth, -0.5f*lineheight, 1.5f);
+    //Mira2 tela
+    TextRendering_PrintString(window, "- -", -(3.0f*charwidth*0.5)/2, 0.0f, 0.5f);
+    TextRendering_PrintString(window, "'", -(1.0f*charwidth*0.5)/2, -(1.0f*lineheight*0.5), 0.5f);
 
-    // TextRendering_PrintString(window, ",", 1.0f*charwidth, -1.0f+0.5*lineheight, 0.5f);
-    // TextRendering_PrintString(window, "- -", 1.0f*charwidth, -1.0f*lineheight, 0.5f);
-    // TextRendering_PrintString(window, "'", 1.0f*charwidth, -1.0f-0.5*lineheight, 0.5f);
-
-    //hit
+    //Hit
     if(hit){
         TextRendering_PrintString(window, "H.I.T", 1.0f*charwidth, -1.5f*lineheight, 1.5f);
     }
