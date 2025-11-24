@@ -392,6 +392,7 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         glUniform1i(g_object_id_uniform, BRICK_WALL);
         DrawVirtualObject("the_plane");
 
+        float gun_angle = std::cos(g_Seconds);
         //gun
         model = 
                 //Matrix_Translate(1.0f,1.0f,1.0f)
@@ -399,6 +400,7 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
               * Matrix_Rotate_Y(g_ViewTheta)
               * Matrix_Rotate_X(-g_ViewPhi)
               * Matrix_Translate(-(!g_RightMouseButtonPressed)*0.4f,-0.3f,0.8f)
+              * Matrix_Rotate_X(gun_angle)
               * Matrix_Rotate_Y(M_PI)
               * Matrix_Scale(0.25f,0.25f,0.25f);
         glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
