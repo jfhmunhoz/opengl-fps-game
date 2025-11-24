@@ -392,21 +392,36 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         glUniform1i(g_object_id_uniform, BRICK_WALL);
         DrawVirtualObject("the_plane");
 
-        float gun_angle = std::cos(g_Seconds);
         //gun
-        model = 
-                //Matrix_Translate(1.0f,1.0f,1.0f)
-                Matrix_Translate(g_CameraX, g_CameraY, g_CameraZ)
-              * Matrix_Rotate_Y(g_ViewTheta)
-              * Matrix_Rotate_X(-g_ViewPhi)
-              * Matrix_Translate(-(!g_RightMouseButtonPressed)*0.4f,-0.3f,0.8f)
-              * Matrix_Rotate_X(gun_angle)
-              * Matrix_Rotate_Y(M_PI)
-              * Matrix_Scale(0.25f,0.25f,0.25f);
-        glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(g_object_id_uniform, GUN);
-        DrawVirtualObject("gun");
-
+        bool fire=g_LeftMouseButtonPressed;
+        float gun_angle = -0.25f-std::cos(50*g_Seconds)/4;
+        if(fire)
+        {
+                    model = 
+                            //Matrix_Translate(1.0f,1.0f,1.0f)
+                            Matrix_Translate(g_CameraX, g_CameraY, g_CameraZ)
+                          * Matrix_Rotate_Y(g_ViewTheta)
+                          * Matrix_Rotate_X(-g_ViewPhi)
+                          * Matrix_Translate(-(!g_RightMouseButtonPressed)*0.4f,-0.3f,0.8f)
+                          * Matrix_Rotate_X(gun_angle)
+                          * Matrix_Rotate_Y(M_PI)
+                          * Matrix_Scale(0.25f,0.25f,0.25f);
+                    glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+                    glUniform1i(g_object_id_uniform, GUN);
+                    DrawVirtualObject("gun");
+        }else{
+                    model = 
+                            //Matrix_Translate(1.0f,1.0f,1.0f)
+                            Matrix_Translate(g_CameraX, g_CameraY, g_CameraZ)
+                          * Matrix_Rotate_Y(g_ViewTheta)
+                          * Matrix_Rotate_X(-g_ViewPhi)
+                          * Matrix_Translate(-(!g_RightMouseButtonPressed)*0.4f,-0.3f,0.8f)
+                          * Matrix_Rotate_Y(M_PI)
+                          * Matrix_Scale(0.25f,0.25f,0.25f);
+                    glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+                    glUniform1i(g_object_id_uniform, GUN);
+                    DrawVirtualObject("gun");
+        }
 
         model = Matrix_Scale(100.0f, 1.0f, 100.0f)
               * Matrix_Translate(0.0f,-1.1f,0.0f);
