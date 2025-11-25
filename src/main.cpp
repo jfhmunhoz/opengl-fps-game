@@ -336,7 +336,7 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         model = 
                 Matrix_Translate(g_alvoX,g_alvoY,g_alvoZ)
               * Matrix_Rotate_Y(enemy_angle)
-              * Matrix_Scale(0.1f,0.1f,0.1f);
+              * Matrix_Scale(0.2f,0.2f,0.2f);
         glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
         glUniform1i(g_object_id_uniform, SPHERE);
         DrawVirtualObject("the_robot");
