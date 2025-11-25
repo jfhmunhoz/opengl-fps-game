@@ -210,9 +210,14 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
     ComputeNormals(&planemodel);
     BuildTrianglesAndAddToVirtualScene(&planemodel);
 
-    ObjModel robotmodel("../../data/robot/robot.obj");
+    ObjModel robotmodel("../../data/robot/Robot_Drill.obj");
     ComputeNormals(&robotmodel);
     BuildTrianglesAndAddToVirtualScene(&robotmodel);
+    //next 4 lines given by GPT-4.1
+    std::vector<std::string> robot_part_names;
+    for (const auto& shape : robotmodel.shapes) {
+        robot_part_names.push_back(shape.name);
+    }
 
     TextRendering_Init();
 
@@ -339,7 +344,10 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
               * Matrix_Scale(0.2f,0.2f,0.2f);
         glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
         glUniform1i(g_object_id_uniform, SPHERE);
-        DrawVirtualObject("the_robot");
+        //for loop given by GPT-4.1
+        for (const auto& name : robot_part_names) {
+            DrawVirtualObject(name.c_str());
+        }
 
         glm::vec4 p1 = glm::vec4(-10.0f, 0.0f, -10.0f, 1.0f);
         glm::vec4 p2 = glm::vec4(-10.0f, 0.0f, 10.0f, 1.0f);
