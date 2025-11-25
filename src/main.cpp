@@ -22,6 +22,7 @@
 #include "Player.cpp"
 #include "Camera.cpp"
 #include "collisions.cpp"
+#include "bezier.h"
 // #include <unistd.h>
 
 #include "objmodel.h"
@@ -331,10 +332,25 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         g_alvoZ += alvo_displacement.z;
 
         float enemy_angle = -std::atan2(alvo_direction.z, alvo_direction.x);
-        //alvo
+        //enemy
         model = 
                 Matrix_Translate(g_alvoX,g_alvoY,g_alvoZ)
               * Matrix_Rotate_Y(enemy_angle)
+              * Matrix_Scale(0.1f,0.1f,0.1f);
+        glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        glUniform1i(g_object_id_uniform, SPHERE);
+        DrawVirtualObject("the_robot");
+
+        glm::vec4 p1 = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+        glm::vec4 p2 = glm::vec4(3.0f, 0.0f, 0.0f, 1.0f);
+        glm::vec4 p3 = glm::vec4(0.0f, 0.0f, 3.0f, 1.0f);
+        glm::vec4 p4 = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+
+        float tBezier = std::fmod(g_Seconds, 1.0f);
+        glm::vec4 enemy2 = cubicBezier(p1, p2, p3, p4, tBezier);
+        //enemy2
+        model = 
+                Matrix_Translate(enemy2.x, enemy2.y, enemy2.z)
               * Matrix_Scale(0.1f,0.1f,0.1f);
         glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
         glUniform1i(g_object_id_uniform, SPHERE);

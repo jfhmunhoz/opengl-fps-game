@@ -9,6 +9,6 @@
 | Modelos de Iluminação Difusa e Blinn-Phong          |           |
 | Modelos de Interpolação de Phong e Gouraud          |           |
 | Mapeamento de texturas em todos os objetos          |           |
-| Movimentação com curva Bézier cúbica                |           |
+| Movimentação com curva Bézier cúbica                |     X     |
 | Animações baseadas no tempo ($\Delta t$)            |     X     |
 |-----------------------------------------------------+-----------|
