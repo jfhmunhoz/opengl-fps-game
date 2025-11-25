@@ -76,6 +76,7 @@ struct SceneObject
     GLuint       vertex_array_object_id;
     glm::vec3    bbox_min;
     glm::vec3    bbox_max;
+    int          material_id = -1;
 };
 
 std::map<std::string, SceneObject> g_VirtualScene;
@@ -325,6 +326,7 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         #define BRICK_WALL 3
         #define METAL_WALL 4
         #define CEILING 5
+        #define ROBOT 6
 
         glm::vec3 alvo_direction = glm::vec3((g_CameraX - g_alvoX), 0.0f, (g_CameraZ - g_alvoZ));
         alvo_direction = glm::normalize(alvo_direction);
@@ -343,9 +345,11 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
               * Matrix_Rotate_Y(enemy_angle)
               * Matrix_Scale(0.2f,0.2f,0.2f);
         glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(g_object_id_uniform, SPHERE);
+        glUniform1i(g_object_id_uniform, ROBOT);
         //for loop given by GPT-4.1
         for (const auto& name : robot_part_names) {
+            int matid = g_VirtualScene[name].material_id;
+            glUniform1i(glGetUniformLocation(g_GpuProgramID, "material_id"), matid);
             DrawVirtualObject(name.c_str());
         }
 
@@ -361,8 +365,13 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
                 Matrix_Translate(enemy2.x, enemy2.y, enemy2.z)
               * Matrix_Scale(0.1f,0.1f,0.1f);
         glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(g_object_id_uniform, SPHERE);
-        DrawVirtualObject("the_robot");
+        glUniform1i(g_object_id_uniform, ROBOT);
+        //for loop given by GPT-4.1
+        for (const auto& name : robot_part_names) {
+            int matid = g_VirtualScene[name].material_id;
+            glUniform1i(glGetUniformLocation(g_GpuProgramID, "material_id"), matid);
+            DrawVirtualObject(name.c_str());
+        }
 
         //ceiling
         model = 
@@ -722,6 +731,11 @@ void BuildTrianglesAndAddToVirtualScene(ObjModel* model)
 
         theobject.bbox_min = bbox_min;
         theobject.bbox_max = bbox_max;
+
+        if(!model->shapes[shape].mesh.material_ids.empty())
+            theobject.material_id = model->shapes[shape].mesh.material_ids[0];
+        else
+            theobject.material_id = -1;
 
         g_VirtualScene[model->shapes[shape].name] = theobject;
     }

@@ -25,7 +25,7 @@ uniform mat4 projection;
 #define BRICK_WALL 3
 #define METAL_WALL 4
 #define CEILING 5
-#define GHOST 6
+#define ROBOT 6
 
 uniform int object_id;
 
@@ -42,6 +42,9 @@ uniform sampler2D TextureImage4;
 
 // O valor de saída ("out") de um Fragment Shader é a cor final do fragmento.
 out vec4 color;
+
+//Id do material do objeto
+uniform int material_id;
 
 // Constantes
 #define M_PI   3.14159265358979323846
@@ -75,6 +78,8 @@ void main()
     float U = 0.0;
     float V = 0.0;
 
+    vec3 Kd;
+
     if ( object_id == SPHERE )
     {
         vec4 bbox_center = (bbox_min + bbox_max) / 2.0;
@@ -90,168 +95,158 @@ void main()
         V = (phi + M_PI_2) / M_PI;
 
         // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
-        vec3 Kd0 = vec3(0.5f,0.5f,0.5f);
+        Kd = vec3(0.5f,0.5f,0.5f);
         // Equação de Iluminação
         float lambert = max(0,dot(n,l));
 
 
-        color.rgb = Kd0;
+        color.rgb = Kd;
 
         color.a = 1;
 
         // Cor final com correção gamma, considerando monitor sRGB.
-        // Veja https://en.wikipedia.org/w/index.php?title=Gamma_correction&oldid=751281772#Windows.2C_Mac.2C_sRGB_and_TV.2Fvideo_standard_gammas
         color.rgb = pow(color.rgb, vec3(1.0,1.0,1.0)/2.2);
     }
-    if ( object_id == CEILING )
+    else if ( object_id == CEILING )
     {
         // Coordenadas de textura do plano, obtidas do arquivo OBJ.
         U = texcoords.x * 10.0f;
         V = texcoords.y * 10.0f;
 
         // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
-        vec3 Kd0 = texture(TextureImage1, vec2(U,V)).rgb;
+        Kd = texture(TextureImage1, vec2(U,V)).rgb;
         // Equação de Iluminação
         float lambert = max(0,dot(n,l));
 
 
-        color.rgb = Kd0;
+        color.rgb = Kd;
 
         color.a = 1;
 
         // Cor final com correção gamma, considerando monitor sRGB.
-        // Veja https://en.wikipedia.org/w/index.php?title=Gamma_correction&oldid=751281772#Windows.2C_Mac.2C_sRGB_and_TV.2Fvideo_standard_gammas
         color.rgb = pow(color.rgb, vec3(1.0,1.0,1.0)/2.2);
     }
-    if ( object_id == PLANE )
+    else if ( object_id == PLANE )
     {
         // Coordenadas de textura do plano, obtidas do arquivo OBJ.
         U = texcoords.x * 10.0f;
         V = texcoords.y * 10.0f;
 
         // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
-        vec3 Kd0 = texture(TextureImage0, vec2(U,V)).rgb;
+        Kd = texture(TextureImage0, vec2(U,V)).rgb;
         // Equação de Iluminação
         float lambert = max(0,dot(n,l));
 
+        color.rgb = Kd;
 
-        color.rgb = Kd0;
-
-        // NOTE: Se você quiser fazer o rendering de objetos transparentes, é
-        // necessário:
-        // 1) Habilitar a operação de "blending" de OpenGL logo antes de realizar o
-        //    desenho dos objetos transparentes, com os comandos abaixo no código C++:
-        //      glEnable(GL_BLEND);
-        //      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        // 2) Realizar o desenho de todos objetos transparentes *após* ter desenhado
-        //    todos os objetos opacos; e
-        // 3) Realizar o desenho de objetos transparentes ordenados de acordo com
-        //    suas distâncias para a câmera (desenhando primeiro objetos
-        //    transparentes que estão mais longe da câmera).
-        // Alpha default = 1 = 100% opaco = 0% transparente
         color.a = 1;
 
         // Cor final com correção gamma, considerando monitor sRGB.
-        // Veja https://en.wikipedia.org/w/index.php?title=Gamma_correction&oldid=751281772#Windows.2C_Mac.2C_sRGB_and_TV.2Fvideo_standard_gammas
         color.rgb = pow(color.rgb, vec3(1.0,1.0,1.0)/2.2);
     }
-    if ( object_id == METAL_WALL )
+    else if ( object_id == METAL_WALL )
     {
         // Coordenadas de textura do plano, obtidas do arquivo OBJ.
         V = texcoords.x * 2.0f;
         U = texcoords.y * 10.0f;
 
         // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
-        vec3 Kd0 = texture(TextureImage1, vec2(U,V)).rgb;
+        Kd = texture(TextureImage1, vec2(U,V)).rgb;
         // Equação de Iluminação
         float lambert = max(0,dot(n,l));
 
 
-        color.rgb = Kd0;
+        color.rgb = Kd;
 
         color.a = 1;
 
         // Cor final com correção gamma, considerando monitor sRGB.
-        // Veja https://en.wikipedia.org/w/index.php?title=Gamma_correction&oldid=751281772#Windows.2C_Mac.2C_sRGB_and_TV.2Fvideo_standard_gammas
         color.rgb = pow(color.rgb, vec3(1.0,1.0,1.0)/2.2);
     }
-    if ( object_id == BRICK_WALL )
+    else if ( object_id == BRICK_WALL )
     {
         // Coordenadas de textura do plano, obtidas do arquivo OBJ.
         V = texcoords.x * 2.0f;
         U = texcoords.y * 10.0f;
 
         // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
-        vec3 Kd0 = texture(TextureImage2, vec2(U,V)).rgb;
+        Kd = texture(TextureImage2, vec2(U,V)).rgb;
         // Equação de Iluminação
         float lambert = max(0,dot(n,l));
 
 
-        color.rgb = Kd0;
+        color.rgb = Kd;
 
         color.a = 1;
 
         // Cor final com correção gamma, considerando monitor sRGB.
-        // Veja https://en.wikipedia.org/w/index.php?title=Gamma_correction&oldid=751281772#Windows.2C_Mac.2C_sRGB_and_TV.2Fvideo_standard_gammas
         color.rgb = pow(color.rgb, vec3(1.0,1.0,1.0)/2.2);
     }
-    if ( object_id == GUN )
+    else if ( object_id == GUN )
     {
         // Coordenadas de textura do plano, obtidas do arquivo OBJ.
         U = texcoords.x;
         V = texcoords.y;
 
         // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
-        vec3 Kd0 = texture(TextureImage3, vec2(U,V)).rgb;
+        Kd = texture(TextureImage3, vec2(U,V)).rgb;
         // Equação de Iluminação
         float lambert = max(0,dot(n,l));
 
 
-        color.rgb = Kd0;
+        color.rgb = Kd;
 
         color.a = 1;
 
         // Cor final com correção gamma, considerando monitor sRGB.
-        // Veja https://en.wikipedia.org/w/index.php?title=Gamma_correction&oldid=751281772#Windows.2C_Mac.2C_sRGB_and_TV.2Fvideo_standard_gammas
         color.rgb = pow(color.rgb, vec3(1.0,1.0,1.0)/2.2);
     }
-    if ( object_id == GHOST )
+    else if ( object_id == ROBOT )
     {
-        // Coordenadas de textura do plano, obtidas do arquivo OBJ.
-        U = texcoords.x;
-        V = texcoords.y;
+        if (material_id == 0) { // Drill
+            //Kd 0.110689 0.110689 0.110689
+            //Ks 0.408333 0.408333 0.408333
+            Kd = vec3(0.110689, 0.110689, 0.110689);
+            color.rgb = Kd;
 
-        // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
-        vec3 Kd0 = texture(TextureImage4, vec2(U,V)).rgb;
-        // Equação de Iluminação
-        float lambert = max(0,dot(n,l));
+            color.a = 1;
 
+            // Cor final com correção gamma, considerando monitor sRGB.
+            color.rgb = pow(color.rgb, vec3(1.0,1.0,1.0)/2.2);
+        }
+        else if (material_id == 1) { // Eye_Exterior
+            //Kd 0.002579 0.002579 0.002579
+            //Ks 0.500000 0.500000 0.500000
+            Kd = vec3(0.002579, 0.002579, 0.002579);
+            color.rgb = Kd;
 
-        color.rgb = Kd0;
+            color.a = 1;
 
-        color.a = 1;
+            // Cor final com correção gamma, considerando monitor sRGB.
+            color.rgb = pow(color.rgb, vec3(1.0,1.0,1.0)/2.2);
+        }
+        else if (material_id == 2) { // Eye_Inside
+            //Kd 0.800000 0.000000 0.003908
+            //Ks 0.500000 0.500000 0.500000
+            Kd = vec3(0.800000, 0.000000, 0.003908);
+            color.rgb = Kd;
 
-        // Cor final com correção gamma, considerando monitor sRGB.
-        // Veja https://en.wikipedia.org/w/index.php?title=Gamma_correction&oldid=751281772#Windows.2C_Mac.2C_sRGB_and_TV.2Fvideo_standard_gammas
-        color.rgb = pow(color.rgb, vec3(1.0,1.0,1.0)/2.2);
+            color.a = 1;
+
+            // Cor final com correção gamma, considerando monitor sRGB.
+            color.rgb = pow(color.rgb, vec3(1.0,1.0,1.0)/2.2);
+        }
+        else if (material_id == 3) { // Robot_Mat
+            //Kd 0.147314 0.147314 0.147314
+            //Ks 0.500000 0.500000 0.500000
+            Kd = vec3(0.147314, 0.147314, 0.147314);
+            color.rgb = Kd;
+
+            color.a = 1;
+
+            // Cor final com correção gamma, considerando monitor sRGB.
+            color.rgb = pow(color.rgb, vec3(1.0,1.0,1.0)/2.2);
+        }
     }
-    /*else
-    {
-        U = texcoords.x;
-        V = texcoords.y;
-        // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
-        vec3 Kd0 = vec3(0.5f,0.5f,0.5f);
-        // Equação de Iluminação
-        float lambert = max(0,dot(n,l));
-
-
-        color.rgb = Kd0;
-
-        color.a = 1;
-
-        // Cor final com correção gamma, considerando monitor sRGB.
-        // Veja https://en.wikipedia.org/w/index.php?title=Gamma_correction&oldid=751281772#Windows.2C_Mac.2C_sRGB_and_TV.2Fvideo_standard_gammas
-        color.rgb = pow(color.rgb, vec3(1.0,1.0,1.0)/2.2);
-    }*/
 } 
 
