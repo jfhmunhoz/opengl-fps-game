@@ -30,6 +30,7 @@
 #define SENSITIVITY 0.02
 #define M_PI   3.14159265358979323846
 #define M_PI_2 1.57079632679489661923
+#define BEZIER_INTERVAL 10.0f
 
 void PushMatrix(glm::mat4 M);
 void PopMatrix(glm::mat4& M);
@@ -198,6 +199,7 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
     LoadTextureImage("../../data/rusty_metal/textures/rusty_metal_grid_diff_4k.jpg");
     LoadTextureImage("../../data/damaged_plaster/textures/damaged_plaster_diff_4k.jpg");
     LoadTextureImage("../../data/gun/textures/GUN_Material.003_BaseColor.jpg");
+    LoadTextureImage("../../data/street_rat/textures/street_rat_diff_4k.jpg");
 
     ObjModel spheremodel("../../data/sphere.obj");
     ComputeNormals(&spheremodel);
@@ -219,6 +221,10 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
     for (const auto& shape : robotmodel.shapes) {
         robot_part_names.push_back(shape.name);
     }
+
+    ObjModel ratmodel("../../data/street_rat/street_rat_4k.obj");
+    ComputeNormals(&ratmodel);
+    BuildTrianglesAndAddToVirtualScene(&ratmodel);
 
     TextRendering_Init();
 
@@ -327,6 +333,7 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         #define METAL_WALL 4
         #define CEILING 5
         #define ROBOT 6
+        #define RAT 7
 
         glm::vec3 alvo_direction = glm::vec3((g_CameraX - g_alvoX), 0.0f, (g_CameraZ - g_alvoZ));
         alvo_direction = glm::normalize(alvo_direction);
@@ -358,20 +365,18 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         glm::vec4 p3 = glm::vec4(10.0f, 0.0f, 10.0f, 1.0f);
         glm::vec4 p4 = glm::vec4(10.0f, 0.0f, -10.0f, 1.0f);
 
-        float tBezier = std::fmod(g_Seconds, 1.0f);
+        float tBezier = std::fmod(g_Seconds, BEZIER_INTERVAL)/10;
         glm::vec4 enemy2 = cubicBezier(p1, p2, p3, p4, tBezier);
+        glm::vec4 enemy2view = cubicBezier(p1, p2, p3, p4, tBezier+0.01f) - enemy2;
+        float enemy2_angle = -std::atan2(-enemy2view.x, enemy2view.z);
         //enemy2
         model = 
-                Matrix_Translate(enemy2.x, enemy2.y, enemy2.z)
-              * Matrix_Scale(0.1f,0.1f,0.1f);
+              Matrix_Translate(enemy2.x, enemy2.y, enemy2.z)
+              * Matrix_Rotate_Y(enemy2_angle)
+              * Matrix_Scale(7.0f,7.0f,7.0f);
         glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(g_object_id_uniform, ROBOT);
-        //for loop given by GPT-4.1
-        for (const auto& name : robot_part_names) {
-            int matid = g_VirtualScene[name].material_id;
-            glUniform1i(glGetUniformLocation(g_GpuProgramID, "material_id"), matid);
-            DrawVirtualObject(name.c_str());
-        }
+        glUniform1i(g_object_id_uniform, RAT);
+        DrawVirtualObject("street_rat");
 
         //ceiling
         model = 
@@ -569,6 +574,7 @@ void LoadShadersFromFiles()
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage1"), 1);
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage2"), 2);
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage3"), 3);
+    glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage4"), 4);
     glUseProgram(0);
 }
 

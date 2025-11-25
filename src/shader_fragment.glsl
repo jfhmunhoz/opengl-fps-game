@@ -26,6 +26,7 @@ uniform mat4 projection;
 #define METAL_WALL 4
 #define CEILING 5
 #define ROBOT 6
+#define RAT 7
 
 uniform int object_id;
 
@@ -247,6 +248,25 @@ void main()
             // Cor final com correção gamma, considerando monitor sRGB.
             color.rgb = pow(color.rgb, vec3(1.0,1.0,1.0)/2.2);
         }
+    }
+    else if ( object_id == RAT )
+    {
+        // Coordenadas de textura do plano, obtidas do arquivo OBJ.
+        U = texcoords.x;
+        V = texcoords.y;
+
+        // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
+        Kd = texture(TextureImage4, vec2(U,V)).rgb;
+        // Equação de Iluminação
+        float lambert = max(0,dot(n,l));
+
+
+        color.rgb = Kd;
+
+        color.a = 1;
+
+        // Cor final com correção gamma, considerando monitor sRGB.
+        color.rgb = pow(color.rgb, vec3(1.0,1.0,1.0)/2.2);
     }
 } 
 
