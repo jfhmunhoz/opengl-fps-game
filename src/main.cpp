@@ -22,7 +22,7 @@
 #include "Player.cpp"
 #include "Camera.cpp"
 #include "collisions.cpp"
-#include "bezier.h"
+#include "bezier.hpp"
 // #include <unistd.h>
 
 #include "objmodel.h"
@@ -328,7 +328,7 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         alvo_displacement = g_alvoVelocity * g_ElapsedSeconds *  alvo_direction;
         
         g_alvoX += alvo_displacement.x;
-        g_alvoY = 0.5f;
+        g_alvoY = 0.0f;
         g_alvoZ += alvo_displacement.z;
 
         float enemy_angle = -std::atan2(alvo_direction.z, alvo_direction.x);
@@ -341,10 +341,10 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         glUniform1i(g_object_id_uniform, SPHERE);
         DrawVirtualObject("the_robot");
 
-        glm::vec4 p1 = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-        glm::vec4 p2 = glm::vec4(3.0f, 0.0f, 0.0f, 1.0f);
-        glm::vec4 p3 = glm::vec4(0.0f, 0.0f, 3.0f, 1.0f);
-        glm::vec4 p4 = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+        glm::vec4 p1 = glm::vec4(-10.0f, 0.0f, -10.0f, 1.0f);
+        glm::vec4 p2 = glm::vec4(-10.0f, 0.0f, 10.0f, 1.0f);
+        glm::vec4 p3 = glm::vec4(10.0f, 0.0f, 10.0f, 1.0f);
+        glm::vec4 p4 = glm::vec4(10.0f, 0.0f, -10.0f, 1.0f);
 
         float tBezier = std::fmod(g_Seconds, 1.0f);
         glm::vec4 enemy2 = cubicBezier(p1, p2, p3, p4, tBezier);
