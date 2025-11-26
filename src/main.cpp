@@ -359,7 +359,7 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         float enemy_angle = -std::atan2(-alvo_direction.x, alvo_direction.z);
         //enemy
         model = 
-                Matrix_Translate(g_alvoX,g_alvoY+0.75f,g_alvoZ)
+                Matrix_Translate(g_alvoX,g_alvoY+0.66f,g_alvoZ)
               * Matrix_Rotate_Y(enemy_angle)
               * Matrix_Scale(1.0f,1.0f,1.0f);
         glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
