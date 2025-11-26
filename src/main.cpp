@@ -303,7 +303,7 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
                 hit = true;
                 player.addScore(1);
             }
-            player.shoot();
+            player.shoot(g_Seconds);
             //sleep(1);
             //TextRendering_ShowProjection(window);
         }
@@ -442,9 +442,9 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         DrawVirtualObject("the_plane");
 
         //gun
-        bool fire=g_LeftMouseButtonPressed;
-        float gun_angle = -0.25f-std::cos(50*g_Seconds)/4;
-        if(fire)
+        float gun_animation = player.gunAnimation(g_Seconds);
+        float gun_angle = -0.25f-std::cos(M_PI*gun_animation)/4;
+        if(gun_animation)
         {
                     model = 
                             //Matrix_Translate(1.0f,1.0f,1.0f)

@@ -29,11 +29,29 @@ int Player::getMaxAmmo() const
     return maxAmmo;
 }
 
-void Player::shoot()
+void Player::shoot(float time)
 {
     if (nroBalas > 0) {
-        nroBalas--;
+        if(time - prevShotTime > 0.5f)
+        {
+            nroBalas--;
+            prevShotTime = time;
+        }
     }
+}
+
+float Player::gunAnimation(float time)
+{
+    if(time - prevShotTime > 0.5f)
+    {
+        return 0.0f;
+    }
+    else
+    {
+        return (time - prevShotTime)/0.5f;
+    }
+
+
 }
 
 void Player::reload()

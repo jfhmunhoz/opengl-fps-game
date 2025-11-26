@@ -1,7 +1,7 @@
-#include "Camera.hpp"
 #ifndef PLAYER_H
 #define PLAYER_H
 
+#include "Camera.hpp"
 #include <glm/glm.hpp>
 
 class Player
@@ -12,11 +12,13 @@ public:
     glm::vec3 getPosition() const;
     void update(float deltaTime);
     int getMaxAmmo() const;
-    void shoot();
+    void shoot(float time);
     void reload();
     int getAmmo() const;
     int getScore() const;
     void addScore(int points);
+    float gunAnimation(float time);
+
     Camera& getCamera();
     
 private:
@@ -26,9 +28,11 @@ private:
     float posZ = 0.0f;
 
     Camera camera;
-    int nroBalas = 30;
+    int nroBalas = 6;
     int pontuacao = 0;
-    int maxAmmo = 30;
+    int maxAmmo = 6;
+    float prevShotTime = 0;
+    bool shooting = false;
     
     void resetPoints();
     void addPoints();
