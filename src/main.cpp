@@ -200,6 +200,7 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
     LoadTextureImage("../../data/damaged_plaster/textures/damaged_plaster_diff_4k.jpg");
     LoadTextureImage("../../data/gun/textures/GUN_Material.003_BaseColor.jpg");
     LoadTextureImage("../../data/street_rat/textures/street_rat_diff_4k.jpg");
+    LoadTextureImage("../../data/robot2/Chopper_BaseColor.png");
 
     ObjModel spheremodel("../../data/sphere.obj");
     ComputeNormals(&spheremodel);
@@ -220,6 +221,15 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
     std::vector<std::string> robot_part_names;
     for (const auto& shape : robotmodel.shapes) {
         robot_part_names.push_back(shape.name);
+    }
+
+    ObjModel robot2model("../../data/robot2/robot.obj");
+    ComputeNormals(&robot2model);
+    BuildTrianglesAndAddToVirtualScene(&robot2model);
+    //next 4 lines given by GPT-4.1
+    std::vector<std::string> robot2_part_names;
+    for (const auto& shape : robot2model.shapes) {
+        robot2_part_names.push_back(shape.name);
     }
 
     ObjModel ratmodel("../../data/street_rat/street_rat_4k.obj");
@@ -334,6 +344,7 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         #define CEILING 5
         #define ROBOT 6
         #define RAT 7
+        #define ROBOT2 8
 
         glm::vec3 alvo_direction = glm::vec3((g_CameraX - g_alvoX), 0.0f, (g_CameraZ - g_alvoZ));
         alvo_direction = glm::normalize(alvo_direction);
@@ -345,16 +356,16 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         g_alvoY = 0.0f;
         g_alvoZ += alvo_displacement.z;
 
-        float enemy_angle = -std::atan2(alvo_direction.z, alvo_direction.x);
+        float enemy_angle = -std::atan2(-alvo_direction.x, alvo_direction.z);
         //enemy
         model = 
-                Matrix_Translate(g_alvoX,g_alvoY,g_alvoZ)
+                Matrix_Translate(g_alvoX,g_alvoY+0.75f,g_alvoZ)
               * Matrix_Rotate_Y(enemy_angle)
-              * Matrix_Scale(0.2f,0.2f,0.2f);
+              * Matrix_Scale(1.0f,1.0f,1.0f);
         glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(g_object_id_uniform, ROBOT);
+        glUniform1i(g_object_id_uniform, ROBOT2);
         //for loop given by GPT-4.1
-        for (const auto& name : robot_part_names) {
+        for (const auto& name : robot2_part_names) {
             int matid = g_VirtualScene[name].material_id;
             glUniform1i(glGetUniformLocation(g_GpuProgramID, "material_id"), matid);
             DrawVirtualObject(name.c_str());
@@ -575,6 +586,7 @@ void LoadShadersFromFiles()
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage2"), 2);
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage3"), 3);
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage4"), 4);
+    glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage5"), 5);
     glUseProgram(0);
 }
 
