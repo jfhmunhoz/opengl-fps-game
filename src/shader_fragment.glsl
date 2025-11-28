@@ -1,17 +1,10 @@
 #version 330 core
 
-// Atributos de fragmentos recebidos como entrada ("in") pelo Fragment Shader.
-// Neste exemplo, este atributo foi gerado pelo rasterizador como a
-// interpolação da posição global e a normal de cada vértice, definidas em
-// "shader_vertex.glsl" e "main.cpp".
 in vec4 position_world;
 in vec4 normal;
-
-// Posição do vértice atual no sistema de coordenadas local do modelo.
 in vec4 position_model;
-
-// Coordenadas de textura obtidas do arquivo OBJ (se existirem!)
 in vec2 texcoords;
+in vec3 gouraud_shading;
 
 // Matrizes computadas no código C++ e enviadas para a GPU
 uniform mat4 model;
@@ -86,7 +79,7 @@ void main()
     float cos_angle = cos(spotilight_angle);
     vec4 incidence = normalize(p - source_position);
     float cos_beta = dot(incidence, spotlight_direction);
-    bool outside_cone = cos_beta<cos_angle;
+    bool inside_cone = cos_beta>cos_angle;
 
     // Vetor que define o sentido da fonte de luz em relação ao ponto atual.
     vec4 l = - incidence;
@@ -113,52 +106,11 @@ void main()
     vec3 Ks = vec3(0.0f,0.0f,0.0f);
     float q = 0.0;
 
-    if ( object_id == SPHERE )
-    {
-        vec4 bbox_center = (bbox_min + bbox_max) / 2.0;
+    bool isGouraud = true;
 
-        float raio = 1.0;
-        vec4 p_linha = bbox_center + raio * normalize(position_model - bbox_center);
-        vec4 p_vector = p_linha - bbox_center;
-
-        float theta = atan(p_vector.x, p_vector.z);
-        float phi = asin(p_vector.y / raio);
-
-        U = (theta + M_PI) / (2 * M_PI);
-        V = (phi + M_PI_2) / M_PI;
-        Kd = vec3(0.5f,0.5f,0.5f);
-        Ka = 0.5*Kd;
-    }
-    else if ( object_id == CEILING )
+    if ( object_id == GUN )
     {
-        U = texcoords.x * 10.0f;
-        V = texcoords.y * 10.0f;
-        Kd = texture(TextureImage1, vec2(U,V)).rgb;
-        Ka = 0.5*Kd;
-    }
-    else if ( object_id == PLANE )
-    {
-        U = texcoords.x * 10.0f;
-        V = texcoords.y * 10.0f;
-        Kd = texture(TextureImage0, vec2(U,V)).rgb;
-        Ka = 0.5*Kd;
-    }
-    else if ( object_id == METAL_WALL )
-    {
-        V = texcoords.x * 2.0f;
-        U = texcoords.y * 10.0f;
-        Kd = texture(TextureImage1, vec2(U,V)).rgb;
-        Ka = 0.5*Kd;
-    }
-    else if ( object_id == BRICK_WALL )
-    {
-        V = texcoords.x * 2.0f;
-        U = texcoords.y * 10.0f;
-        Kd = texture(TextureImage2, vec2(U,V)).rgb;
-        Ka = 0.5*Kd;
-    }
-    else if ( object_id == GUN )
-    {
+        isGouraud = false;
         U = texcoords.x;
         V = texcoords.y;
         Ka = texture(TextureImage3, vec2(U,V)).rgb;
@@ -166,54 +118,41 @@ void main()
         Ks = 15.5*Ka;
         q = 80.0;
     }
-    else if ( object_id == ROBOT )
+    else if ( object_id == CEILING )
     {
-        if (material_id == 0) { // Drill
-            //Kd 0.110689 0.110689 0.110689
-            //Ka 0.575000 0.575000 0.575000
-            //Ks 0.408333 0.408333 0.408333
-            Kd = vec3(0.110689, 0.110689, 0.110689);
-            Ka = vec3(0.575000, 0.575000, 0.575000);
-            Ks = vec3(0.408333, 0.408333, 0.408333);
-            q = 20.0;
-        }
-        else if (material_id == 1) { // Eye_Exterior
-            //Kd 0.002579 0.002579 0.002579
-            //Ka 0.466667 0.466667 0.466667
-            //Ks 0.500000 0.500000 0.500000
-            Kd = vec3(0.002579, 0.002579, 0.002579);
-            Ka = vec3(0.466667, 0.466667, 0.466667);
-            Ks = vec3(0.500000, 0.500000, 0.500000);
-            q = 20.0;
-        }
-        else if (material_id == 2) { // Eye_Inside
-            //Kd 0.800000 0.000000 0.003908
-            //Ka 1.000000 1.000000 1.000000
-            //Ks 0.500000 0.500000 0.500000
-            Kd = vec3(0.800000, 0.000000, 0.003908);
-            Ka = vec3(1.000000, 1.000000, 1.000000);
-            Ks = vec3(0.500000, 0.500000, 0.500000);
-            q = 20.0;
-        }
-        else if (material_id == 3) { // Robot_Mat
-            //Kd 0.147314 0.147314 0.147314
-            //Ka 1.000000 1.000000 1.000000
-            //Ks 0.500000 0.500000 0.500000
-            Kd = vec3(0.147314, 0.147314, 0.147314);
-            Ka = vec3(1.000000, 1.000000, 1.000000);
-            Ks = vec3(0.500000, 0.500000, 0.500000);
-            q = 20.0;
-        }
+        isGouraud = false;
+        U = texcoords.x * 10.0f;
+        V = texcoords.y * 10.0f;
+        Kd = texture(TextureImage1, vec2(U,V)).rgb;
+        Ka = 1.0*Kd;
     }
-    else if ( object_id == RAT )
+    else if ( object_id == PLANE )
     {
-        U = texcoords.x;
-        V = texcoords.y;
-        Kd = texture(TextureImage4, vec2(U,V)).rgb;
-        Ka = 0.5*Kd;
+        isGouraud = false;
+        U = texcoords.x * 10.0f;
+        V = texcoords.y * 10.0f;
+        Kd = texture(TextureImage0, vec2(U,V)).rgb;
+        Ka = 1.0*Kd;
+    }
+    else if ( object_id == METAL_WALL )
+    {
+        isGouraud = false;
+        V = texcoords.x * 2.0f;
+        U = texcoords.y * 10.0f;
+        Kd = texture(TextureImage1, vec2(U,V)).rgb;
+        Ka = 1.0*Kd;
+    }
+    else if ( object_id == BRICK_WALL )
+    {
+        isGouraud = false;
+        V = texcoords.x * 2.0f;
+        U = texcoords.y * 10.0f;
+        Kd = texture(TextureImage2, vec2(U,V)).rgb;
+        Ka = 1.0*Kd;
     }
     else if ( object_id == PENGUIN )
     {
+        isGouraud = false;
         U = texcoords.x;
         V = texcoords.y;
         Ka = texture(TextureImage6, vec2(U,V)).rgb;
@@ -221,43 +160,37 @@ void main()
         Ks = 1.5*Ka;
         q = 20.0;
     }
-    else if ( object_id == ROBOT2 )
+
+    if(isGouraud)
     {
-        U = texcoords.x;
-        V = texcoords.y;
-        Kd = texture(TextureImage5, vec2(U,V)).rgb;
-        Ka = 0.5*Kd;
+        color.rgb = gouraud_shading;
     }
     else
     {
-        Kd = vec3(0.0f,0.0f,0.0f);
-        Ka = 0.5*Kd;
+        vec3 I = vec3(0.4,0.4,0.4);
+        float intensity = 5.0;
+        if(inside_cone)
+            I += intensity*(vec3(1.0,0.0,0.0)/length(p - source_position));
+        vec3 Ia = 0.005*vec3(1.0,1.0,1.0);
+        vec3 lambert_diffuse_term = Kd * I * max(0, dot(n, l));
+        vec3 ambient_term = Ka * Ia;
+        vec3 phong_specular_term  = Ks * I * pow(max(0,dot(n,h)), q);
+
+        if(q==0.0)
+            phong_specular_term = vec3(0.0,0.0,0.0);
+
+        if(object_id == PENGUIN && dot(v,n)<=0)
+            color.rgb = vec3(0.0,0.0,0.0);
+
+        color.rgb = lambert_diffuse_term + ambient_term + phong_specular_term;
     }
 
-
-
-
-    vec3 I = vec3(0.4,0.4,0.4);
-    float intensity = 5.0;
-    if(!outside_cone)
-        I += intensity*(vec3(1.0,0.0,0.0)/length(p - source_position));
-    vec3 Ia = 0*vec3(0.1,0.1,0.1);
-    vec3 lambert_diffuse_term = Kd * I * max(0, dot(n, l));
-    vec3 ambient_term = Ka * Ia;
-    vec3 phong_specular_term  = Ks * I * pow(max(0,dot(n,h)), q);
-
-    if(q==0.0)
-        phong_specular_term = vec3(0.0,0.0,0.0);
-
-    if(object_id == PENGUIN && dot(v,n)<=0)
-        color.rgb = vec3(0.0,0.0,0.0);
-
-    color.rgb = lambert_diffuse_term + ambient_term + phong_specular_term;
     color.a = 1;
     color.rgb = pow(color.rgb, vec3(1.0,1.0,1.0)/2.2);
 
     //deixar o pingu mais cartoonizado
     if(object_id == PENGUIN && dot(v,n)<=0.3)
         color.rgb = vec3(0.0,0.0,0.0);
+
 } 
 
