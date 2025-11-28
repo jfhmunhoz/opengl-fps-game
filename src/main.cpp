@@ -30,7 +30,7 @@
 #define SENSITIVITY 0.02
 #define M_PI   3.14159265358979323846
 #define M_PI_2 1.57079632679489661923
-#define BEZIER_INTERVAL 10.0f
+#define BEZIER_INTERVAL 2.0f
 
 void PushMatrix(glm::mat4 M);
 void PopMatrix(glm::mat4& M);
@@ -364,10 +364,10 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
 
         glm::vec4 p1 = glm::vec4(-10.0f, 0.0f, -10.0f, 1.0f);
         glm::vec4 p2 = glm::vec4(-10.0f, 0.0f, 10.0f, 1.0f);
-        glm::vec4 p3 = glm::vec4(10.0f, 0.0f, 10.0f, 1.0f);
-        glm::vec4 p4 = glm::vec4(10.0f, 0.0f, -10.0f, 1.0f);
+        glm::vec4 p3 = glm::vec4(10.0f, 0.0f, -10.0f, 1.0f);
+        glm::vec4 p4 = glm::vec4(10.0f, 0.0f, 10.0f, 1.0f);
 
-        float tBezier = std::fmod(g_Seconds, BEZIER_INTERVAL)/10;
+        float tBezier = std::fmod(g_Seconds, BEZIER_INTERVAL)/BEZIER_INTERVAL;
         glm::vec4 enemy2 = cubicBezier(p1, p2, p3, p4, tBezier);
         glm::vec4 enemy2view = cubicBezier(p1, p2, p3, p4, tBezier+0.01f) - enemy2;
         float enemy2_angle = -std::atan2(-enemy2view.x, enemy2view.z);
