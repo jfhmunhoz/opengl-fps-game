@@ -20,3 +20,15 @@ bool CollisionManager::rayToSphere(glm::vec3 rayOrigin, glm::vec3 rayDir,
     
     return discriminant >= 0.0f;
 }
+
+bool CollisionManager::spherePlaneCollision(
+    glm::vec3 sphereCenter,
+    float radius,
+    glm::vec3 planePoint,
+    glm::vec3 planeNormal
+)
+{
+    float dist = glm::dot(sphereCenter - planePoint, planeNormal);
+    //return fabs(dist) <= radius;
+    return dist <= radius && dist >= 0.0f;
+}
