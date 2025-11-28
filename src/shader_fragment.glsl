@@ -161,8 +161,10 @@ void main()
     {
         U = texcoords.x;
         V = texcoords.y;
-        Kd = texture(TextureImage3, vec2(U,V)).rgb;
-        Ka = 0.5*Kd;
+        Ka = texture(TextureImage3, vec2(U,V)).rgb;
+        Kd = 0.8*Ka;
+        Ks = 15.5*Ka;
+        q = 80.0;
     }
     else if ( object_id == ROBOT )
     {
@@ -239,7 +241,7 @@ void main()
     float intensity = 5.0;
     if(!outside_cone)
         I += intensity*(vec3(1.0,0.0,0.0)/length(p - source_position));
-    vec3 Ia = vec3(0.1,0.1,0.1);
+    vec3 Ia = 0*vec3(0.1,0.1,0.1);
     vec3 lambert_diffuse_term = Kd * I * max(0, dot(n, l));
     vec3 ambient_term = Ka * Ia;
     vec3 phong_specular_term  = Ks * I * pow(max(0,dot(n,h)), q);
@@ -247,8 +249,15 @@ void main()
     if(q==0.0)
         phong_specular_term = vec3(0.0,0.0,0.0);
 
+    if(object_id == PENGUIN && dot(v,n)<=0)
+        color.rgb = vec3(0.0,0.0,0.0);
+
     color.rgb = lambert_diffuse_term + ambient_term + phong_specular_term;
     color.a = 1;
     color.rgb = pow(color.rgb, vec3(1.0,1.0,1.0)/2.2);
+
+    //deixar o pingu mais cartoonizado
+    if(object_id == PENGUIN && dot(v,n)<=0.3)
+        color.rgb = vec3(0.0,0.0,0.0);
 } 
 
