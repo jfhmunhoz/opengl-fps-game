@@ -266,11 +266,6 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
 
         glUseProgram(g_GpuProgramID);
 
-        float r = g_CameraDistance;
-        float y = r*sin(g_CameraPhi);
-        float z = r*cos(g_CameraPhi)*cos(g_CameraTheta);
-        float x = r*cos(g_CameraPhi)*sin(g_CameraTheta);
-
         g_Seconds = (float)glfwGetTime();
         g_ElapsedSeconds = g_Seconds - g_OldSeconds;
         g_OldSeconds = g_Seconds;
@@ -1092,28 +1087,36 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
     }
 
     if (key == GLFW_KEY_W)
+    {
         if(action == GLFW_PRESS)
             g_Input.front = true;
         else if(action == GLFW_RELEASE)
             g_Input.front = false;
+    }
 
     if (key == GLFW_KEY_S)
+    {
         if(action == GLFW_PRESS)
             g_Input.back = true;
         else if(action == GLFW_RELEASE)
             g_Input.back = false;
+    }
 
     if (key == GLFW_KEY_D)
+    {
         if(action == GLFW_PRESS)
             g_Input.right = true;
         else if(action == GLFW_RELEASE)
             g_Input.right = false;
+    }
 
     if (key == GLFW_KEY_A)
+    {
         if(action == GLFW_PRESS)
             g_Input.left = true;
         else if(action == GLFW_RELEASE)
             g_Input.left = false;
+    }
 
 }
 
