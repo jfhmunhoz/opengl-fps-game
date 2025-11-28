@@ -428,16 +428,29 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         DrawBuilding();
         
         //player
-        model = 
-              Matrix_Translate(player.getPosition().x, player.getPosition().y, player.getPosition().z)
-              * Matrix_Rotate_Y(camera.getTheta())
-              * Matrix_Scale(1.0f,1.0f,1.0f);
-        glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(g_object_id_uniform, PENGUIN);
-        for (const auto& name : penguin_part_names) {
-            int matid = g_VirtualScene[name].material_id;
-            glUniform1i(glGetUniformLocation(g_GpuProgramID, "material_id"), matid);
-            DrawVirtualObject(name.c_str());
+        if(camera.isLookAt())
+        {
+            model = 
+                  Matrix_Translate(player.getPosition().x, player.getPosition().y, player.getPosition().z)
+                  * Matrix_Rotate_Y(camera.getTheta())
+                  * Matrix_Scale(2.0f,2.0f,2.0f);
+            glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+            glUniform1i(g_object_id_uniform, PENGUIN);
+            for (const auto& name : penguin_part_names) {
+                int matid = g_VirtualScene[name].material_id;
+                glUniform1i(glGetUniformLocation(g_GpuProgramID, "material_id"), matid);
+                DrawVirtualObject(name.c_str());
+            }
+            model = 
+                  Matrix_Translate(player.getPosition().x, player.getPosition().y, player.getPosition().z)
+                  * Matrix_Rotate_Y(camera.getTheta())
+                  * Matrix_Translate(-0.95f,0.7f,0.6f)
+                  * Matrix_Rotate_X(0.5f)
+                  * Matrix_Rotate_Y(M_PI)
+                  * Matrix_Scale(0.25f,0.25f,0.25f);
+            glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+            glUniform1i(g_object_id_uniform, GUN);
+            DrawVirtualObject("gun");
         }
 
         TextRendering_ShowEulerAngles(window);
