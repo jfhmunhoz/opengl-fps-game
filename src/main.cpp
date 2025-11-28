@@ -170,7 +170,7 @@ glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 GLFWwindow* window;
-window = glfwCreateWindow(800, 600, "OpenGL - FPS Game", NULL, NULL);
+window = glfwCreateWindow(800, 600, "STOP MELTING MY HOME", NULL, NULL);
 if (!window)
 {
     glfwTerminate();
