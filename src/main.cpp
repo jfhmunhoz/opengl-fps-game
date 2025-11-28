@@ -355,13 +355,13 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         float enemy_angle = -std::atan2(-alvo_direction.x, alvo_direction.z);
         //enemy
         model = 
-                Matrix_Translate(g_alvoX,g_alvoY+0.66f,g_alvoZ)
-              * Matrix_Rotate_Y(enemy_angle)
-              * Matrix_Scale(1.0f,1.0f,1.0f);
+                Matrix_Translate(g_alvoX,g_alvoY,g_alvoZ)
+              * Matrix_Rotate_Y(enemy_angle-M_PI_2)
+              * Matrix_Scale(0.25f,0.25f,0.25f);
         glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(g_object_id_uniform, ROBOT2);
+        glUniform1i(g_object_id_uniform, ROBOT);
         //for loop given by GPT-4.1
-        for (const auto& name : robot2_part_names) {
+        for (const auto& name : robot_part_names) {
             int matid = g_VirtualScene[name].material_id;
             glUniform1i(glGetUniformLocation(g_GpuProgramID, "material_id"), matid);
             DrawVirtualObject(name.c_str());
