@@ -68,6 +68,19 @@ void Player::update(float deltaTime, input_t input)
     camera.setCamera(posX, posY+CAMERA_HEIGHT, posZ, viewTheta, viewPhi, input.lookat);
 }
 
+
+glm::vec4 Player::getViewVector()
+{
+    float x = viewRadius*cos(viewPhi)*sin(viewTheta);
+    float y = viewRadius*sin(viewPhi);
+    float z = viewRadius*cos(viewPhi)*cos(viewTheta);
+
+    glm::vec4 player_view_vector = glm::vec4(x, y, z, 0.0f);
+
+    return player_view_vector;
+}
+
+
 int Player::getMaxAmmo() const
 {
     return maxAmmo;

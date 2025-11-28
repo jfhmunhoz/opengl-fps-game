@@ -29,6 +29,7 @@ public:
     void update(float deltaTime, input_t input);
 
     glm::vec3 getPosition() const;
+    glm::vec4 getViewVector();
     int getAmmo() const;
     int getScore() const;
     int getMaxAmmo() const;

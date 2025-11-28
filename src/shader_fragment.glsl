@@ -50,6 +50,7 @@ out vec4 color;
 
 //Id do material do objeto
 uniform int material_id;
+uniform vec4 player_view;
 
 // Constantes
 #define M_PI   3.14159265358979323846
@@ -68,22 +69,45 @@ void main()
     // através da interpolação, feita pelo rasterizador, da posição de cada
     // vértice.
     vec4 p = position_world;
+    
+
+    //define posicao da fonte de luz
+    vec4 source_position = camera_position;
+    source_position = vec4(0.0f, 2.0f, 10.0f,1.0f);
+
+    //define direcao da spotilight
+    vec4 spotlight_direction = camera_position;
+    spotlight_direction = vec4(0.0f,-0.2f,-1.0f,1.0f);
+
+    //dfine angulo de abertura da fonte de luz
+    float spotilight_angle = radians(20.0);
+
+    //test if the point is inside light cone
+    float cos_angle = cos(spotilight_angle);
+    vec4 incidence = normalize(p - source_position);
+    float cos_beta = dot(incidence, spotlight_direction);
+    bool outside_cone = cos_beta<cos_angle;
+
+    // Vetor que define o sentido da fonte de luz em relação ao ponto atual.
+    vec4 l = - incidence;
 
     // Normal do fragmento atual, interpolada pelo rasterizador a partir das
     // normais de cada vértice.
     vec4 n = normalize(normal);
 
-    // Vetor que define o sentido da fonte de luz em relação ao ponto atual.
-    vec4 l = normalize(vec4(1.0,1.0,0.0,0.0));
-
     // Vetor que define o sentido da câmera em relação ao ponto atual.
     vec4 v = normalize(camera_position - p);
+
+    vec4 r = -l + 2 * dot(n, l) * n;
 
     // Coordenadas de textura U e V
     float U = 0.0;
     float V = 0.0;
 
-    vec3 Kd;
+    vec3 Kd = vec3(0.0f,0.0f,0.0f);
+    vec3 Ka = vec3(0.0f,0.0f,0.0f);
+    vec3 Ks = vec3(0.0f,0.0f,0.0f);
+    float q = 0.0;
 
     if ( object_id == SPHERE )
     {
@@ -98,232 +122,127 @@ void main()
 
         U = (theta + M_PI) / (2 * M_PI);
         V = (phi + M_PI_2) / M_PI;
-
-        // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
         Kd = vec3(0.5f,0.5f,0.5f);
-        // Equação de Iluminação
-        float lambert = max(0,dot(n,l));
-
-
-        color.rgb = Kd;
-
-        color.a = 1;
-
-        // Cor final com correção gamma, considerando monitor sRGB.
-        color.rgb = pow(color.rgb, vec3(1.0,1.0,1.0)/2.2);
+        Ka = 0.5*Kd;
     }
     else if ( object_id == CEILING )
     {
-        // Coordenadas de textura do plano, obtidas do arquivo OBJ.
         U = texcoords.x * 10.0f;
         V = texcoords.y * 10.0f;
-
-        // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
         Kd = texture(TextureImage1, vec2(U,V)).rgb;
-        // Equação de Iluminação
-        float lambert = max(0,dot(n,l));
-
-
-        color.rgb = Kd;
-
-        color.a = 1;
-
-        // Cor final com correção gamma, considerando monitor sRGB.
-        color.rgb = pow(color.rgb, vec3(1.0,1.0,1.0)/2.2);
+        Ka = 0.5*Kd;
     }
     else if ( object_id == PLANE )
     {
-        // Coordenadas de textura do plano, obtidas do arquivo OBJ.
         U = texcoords.x * 10.0f;
         V = texcoords.y * 10.0f;
-
-        // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
         Kd = texture(TextureImage0, vec2(U,V)).rgb;
-        // Equação de Iluminação
-        float lambert = max(0,dot(n,l));
-
-        color.rgb = Kd;
-
-        color.a = 1;
-
-        // Cor final com correção gamma, considerando monitor sRGB.
-        color.rgb = pow(color.rgb, vec3(1.0,1.0,1.0)/2.2);
+        Ka = 0.5*Kd;
     }
     else if ( object_id == METAL_WALL )
     {
-        // Coordenadas de textura do plano, obtidas do arquivo OBJ.
         V = texcoords.x * 2.0f;
         U = texcoords.y * 10.0f;
-
-        // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
         Kd = texture(TextureImage1, vec2(U,V)).rgb;
-        // Equação de Iluminação
-        float lambert = max(0,dot(n,l));
-
-
-        color.rgb = Kd;
-
-        color.a = 1;
-
-        // Cor final com correção gamma, considerando monitor sRGB.
-        color.rgb = pow(color.rgb, vec3(1.0,1.0,1.0)/2.2);
+        Ka = 0.5*Kd;
     }
     else if ( object_id == BRICK_WALL )
     {
-        // Coordenadas de textura do plano, obtidas do arquivo OBJ.
         V = texcoords.x * 2.0f;
         U = texcoords.y * 10.0f;
-
-        // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
         Kd = texture(TextureImage2, vec2(U,V)).rgb;
-        // Equação de Iluminação
-        float lambert = max(0,dot(n,l));
-
-
-        color.rgb = Kd;
-
-        color.a = 1;
-
-        // Cor final com correção gamma, considerando monitor sRGB.
-        color.rgb = pow(color.rgb, vec3(1.0,1.0,1.0)/2.2);
+        Ka = 0.5*Kd;
     }
     else if ( object_id == GUN )
     {
-        // Coordenadas de textura do plano, obtidas do arquivo OBJ.
         U = texcoords.x;
         V = texcoords.y;
-
-        // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
         Kd = texture(TextureImage3, vec2(U,V)).rgb;
-        // Equação de Iluminação
-        float lambert = max(0,dot(n,l));
-
-
-        color.rgb = Kd;
-
-        color.a = 1;
-
-        // Cor final com correção gamma, considerando monitor sRGB.
-        color.rgb = pow(color.rgb, vec3(1.0,1.0,1.0)/2.2);
+        Ka = 0.5*Kd;
     }
     else if ( object_id == ROBOT )
     {
         if (material_id == 0) { // Drill
             //Kd 0.110689 0.110689 0.110689
+            //Ka 0.575000 0.575000 0.575000
             //Ks 0.408333 0.408333 0.408333
             Kd = vec3(0.110689, 0.110689, 0.110689);
-            color.rgb = Kd;
-
-            color.a = 1;
-
-            // Cor final com correção gamma, considerando monitor sRGB.
-            color.rgb = pow(color.rgb, vec3(1.0,1.0,1.0)/2.2);
+            Ka = vec3(0.575000, 0.575000, 0.575000);
+            Ks = vec3(0.408333, 0.408333, 0.408333);
+            q = 20.0;
         }
         else if (material_id == 1) { // Eye_Exterior
             //Kd 0.002579 0.002579 0.002579
+            //Ka 0.466667 0.466667 0.466667
             //Ks 0.500000 0.500000 0.500000
             Kd = vec3(0.002579, 0.002579, 0.002579);
-            color.rgb = Kd;
-
-            color.a = 1;
-
-            // Cor final com correção gamma, considerando monitor sRGB.
-            color.rgb = pow(color.rgb, vec3(1.0,1.0,1.0)/2.2);
+            Ka = vec3(0.466667, 0.466667, 0.466667);
+            Ks = vec3(0.500000, 0.500000, 0.500000);
+            q = 20.0;
         }
         else if (material_id == 2) { // Eye_Inside
             //Kd 0.800000 0.000000 0.003908
+            //Ka 1.000000 1.000000 1.000000
             //Ks 0.500000 0.500000 0.500000
             Kd = vec3(0.800000, 0.000000, 0.003908);
-            color.rgb = Kd;
-
-            color.a = 1;
-
-            // Cor final com correção gamma, considerando monitor sRGB.
-            color.rgb = pow(color.rgb, vec3(1.0,1.0,1.0)/2.2);
+            Ka = vec3(1.000000, 1.000000, 1.000000);
+            Ks = vec3(0.500000, 0.500000, 0.500000);
+            q = 20.0;
         }
         else if (material_id == 3) { // Robot_Mat
             //Kd 0.147314 0.147314 0.147314
+            //Ka 1.000000 1.000000 1.000000
             //Ks 0.500000 0.500000 0.500000
             Kd = vec3(0.147314, 0.147314, 0.147314);
-            color.rgb = Kd;
-
-            color.a = 1;
-
-            // Cor final com correção gamma, considerando monitor sRGB.
-            color.rgb = pow(color.rgb, vec3(1.0,1.0,1.0)/2.2);
+            Ka = vec3(1.000000, 1.000000, 1.000000);
+            Ks = vec3(0.500000, 0.500000, 0.500000);
+            q = 20.0;
         }
     }
     else if ( object_id == RAT )
     {
-        // Coordenadas de textura do plano, obtidas do arquivo OBJ.
         U = texcoords.x;
         V = texcoords.y;
-
-        // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
         Kd = texture(TextureImage4, vec2(U,V)).rgb;
-        // Equação de Iluminação
-        float lambert = max(0,dot(n,l));
-
-
-        color.rgb = Kd;
-
-        color.a = 1;
-
-        // Cor final com correção gamma, considerando monitor sRGB.
-        color.rgb = pow(color.rgb, vec3(1.0,1.0,1.0)/2.2);
+        Ka = 0.5*Kd;
     }
     else if ( object_id == PENGUIN )
     {
-        // Coordenadas de textura do plano, obtidas do arquivo OBJ.
         U = texcoords.x;
         V = texcoords.y;
-
-        // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
         Kd = texture(TextureImage6, vec2(U,V)).rgb;
-        // Equação de Iluminação
-        float lambert = max(0,dot(n,l));
-
-
-        color.rgb = Kd;
-
-        color.a = 1;
-
-        // Cor final com correção gamma, considerando monitor sRGB.
-        color.rgb = pow(color.rgb, vec3(1.0,1.0,1.0)/2.2);
+        Ka = 0.5*Kd;
     }
     else if ( object_id == ROBOT2 )
     {
-        // Coordenadas de textura do plano, obtidas do arquivo OBJ.
         U = texcoords.x;
         V = texcoords.y;
-
-        // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
         Kd = texture(TextureImage5, vec2(U,V)).rgb;
-        // Equação de Iluminação
-        float lambert = max(0,dot(n,l));
-
-
-        color.rgb = Kd;
-
-        color.a = 1;
-
-        // Cor final com correção gamma, considerando monitor sRGB.
-        color.rgb = pow(color.rgb, vec3(1.0,1.0,1.0)/2.2);
+        Ka = 0.5*Kd;
     }
     else
     {
-        Kd = vec3(1.0f,0.0f,1.0f);
-        // Equação de Iluminação
-        float lambert = max(0,dot(n,l));
-
-
-        color.rgb = Kd;
-
-        color.a = 1;
-
-        // Cor final com correção gamma, considerando monitor sRGB.
-        color.rgb = pow(color.rgb, vec3(1.0,1.0,1.0)/2.2);
-
+        Kd = vec3(0.0f,0.0f,0.0f);
+        Ka = 0.5*Kd;
     }
+
+
+
+
+    vec3 I = vec3(0.4,0.4,0.4);
+    float intensity = 5.0;
+    if(!outside_cone)
+        I += intensity*(vec3(1.0,0.0,0.0)/length(p - source_position));
+    vec3 Ia = vec3(0.1,0.1,0.1);
+    vec3 lambert_diffuse_term = Kd * I * max(0, dot(n, l));
+    vec3 ambient_term = Ka * Ia;
+    vec3 phong_specular_term  = Ks * I * pow(max(0,dot(r,v)), q);
+
+    if(q==0.0)
+        phong_specular_term = vec3(0.0,0.0,0.0);
+
+    color.rgb = lambert_diffuse_term + ambient_term + phong_specular_term;
+    color.a = 1;
+    color.rgb = pow(color.rgb, vec3(1.0,1.0,1.0)/2.2);
 } 
 

@@ -341,6 +341,7 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         alvo_direction = glm::normalize(alvo_direction);
         glm::vec3 alvo_displacement = glm::vec3(0.0f, 0.0f, 0.0f);
 
+        g_alvoVelocity = 0.0f;
         alvo_displacement = g_alvoVelocity * g_ElapsedSeconds *  alvo_direction;
         
         g_alvoX += alvo_displacement.x;
@@ -423,6 +424,7 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         DrawBuilding();
         
         //player
+        glUniform4fv(glGetUniformLocation(g_GpuProgramID, "player_view"), 1, glm::value_ptr(glm::normalize(player.getViewVector())));
         if(camera.isLookAt())
         {
             model = 
