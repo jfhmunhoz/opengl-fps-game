@@ -1067,13 +1067,9 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
     if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
     {
     }
-    if (key == GLFW_KEY_C && action == GLFW_PRESS)
+    if (key == GLFW_KEY_C && action == GLFW_RELEASE)
     {
-        g_Input.lookat = false;
-    }
-    if (key == GLFW_KEY_L && action == GLFW_PRESS)
-    {
-        g_Input.lookat = true;
+        g_Input.lookat = !g_Input.lookat;
     }
     if (key == GLFW_KEY_P && action == GLFW_PRESS)
     {
