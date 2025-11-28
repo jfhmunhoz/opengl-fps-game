@@ -100,8 +100,6 @@ bool g_LeftMouseButtonPressed = false;
 bool g_RightMouseButtonPressed = false;
 bool g_MiddleMouseButtonPressed = false;
 
-float g_CameraTheta = 0.0f;
-float g_CameraPhi = 0.0f;
 float g_CameraDistance = 3.5f;
 
 bool g_UsePerspectiveProjection = true;
@@ -117,27 +115,6 @@ GLint g_bbox_min_uniform;
 GLint g_bbox_max_uniform;
 
 GLuint g_NumLoadedTextures = 0;
-
-//Posicao da camera
-float g_CameraX = 0.0f;
-float g_CameraY = 1.0f;
-float g_CameraZ = 0.0f;
-
-//View Vector
-float g_ViewRadius = 2.5f;
-float g_ViewTheta = 0.0f;
-float g_ViewPhi = 0.0f;
-
-float g_ViewX;
-float g_ViewY = 1.0f;
-float g_ViewZ;
-//Variveis que controlam movimento
-float g_CameraVelocity = 5.0f;
-bool g_Front = false;
-bool g_Back = false;
-bool g_Right = false;
-bool g_Left = false;
-
 
 float g_OldSeconds = 0.0f;
 float g_Seconds;
@@ -294,8 +271,6 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
                 player.addScore(1);
             }
             player.shoot(g_Seconds);
-            //sleep(1);
-            //TextRendering_ShowProjection(window);
         }
         else{
             hit = false;
@@ -337,7 +312,8 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         #define ROBOT2 8
         #define PENGUIN 9
 
-        glm::vec3 alvo_direction = glm::vec3((g_CameraX - g_alvoX), 0.0f, (g_CameraZ - g_alvoZ));
+        // glm::vec3 alvo_direction = glm::vec3((g_CameraX - g_alvoX), 0.0f, (g_CameraZ - g_alvoZ));
+        glm::vec3 alvo_direction = glm::vec3((g_alvoX), 0.0f, (g_alvoZ));
         alvo_direction = glm::normalize(alvo_direction);
         glm::vec3 alvo_displacement = glm::vec3(0.0f, 0.0f, 0.0f);
 

@@ -1,4 +1,5 @@
 #include "Player.hpp"
+#include "collisions.hpp"
 
 Player::Player()
     : posX(0.0f), posY(2.0f), posZ(0.0f), nroBalas(6), pontuacao(0), maxAmmo(6), velocity(PLAYER_VELOCITY), collision(false)
