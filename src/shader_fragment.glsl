@@ -95,10 +95,14 @@ void main()
     // normais de cada vértice.
     vec4 n = normalize(normal);
 
+
     // Vetor que define o sentido da câmera em relação ao ponto atual.
     vec4 v = normalize(camera_position - p);
 
     vec4 r = -l + 2 * dot(n, l) * n;
+
+    // Coef de Blinn-Phong
+    vec4 h = normalize(l+v);
 
     // Coordenadas de textura U e V
     float U = 0.0;
@@ -210,8 +214,10 @@ void main()
     {
         U = texcoords.x;
         V = texcoords.y;
-        Kd = texture(TextureImage6, vec2(U,V)).rgb;
-        Ka = 0.5*Kd;
+        Ka = texture(TextureImage6, vec2(U,V)).rgb;
+        Kd = 0.8*Ka;
+        Ks = 1.5*Ka;
+        q = 20.0;
     }
     else if ( object_id == ROBOT2 )
     {
@@ -236,7 +242,7 @@ void main()
     vec3 Ia = vec3(0.1,0.1,0.1);
     vec3 lambert_diffuse_term = Kd * I * max(0, dot(n, l));
     vec3 ambient_term = Ka * Ia;
-    vec3 phong_specular_term  = Ks * I * pow(max(0,dot(r,v)), q);
+    vec3 phong_specular_term  = Ks * I * pow(max(0,dot(n,h)), q);
 
     if(q==0.0)
         phong_specular_term = vec3(0.0,0.0,0.0);
