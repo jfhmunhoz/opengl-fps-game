@@ -7,10 +7,13 @@
 class Camera {
 public:
 	Camera();
-	void setPosition(float x, float y, float z);
-	void setViewDirection(float theta, float phi);
-	glm::vec3 getPosition() const;
-	glm::vec3 getViewDirection() const;
+	void setCamera(float x, float y, float z, float theta, float phi, bool lookat);
+	glm::vec4 getPosition() const;
+	glm::vec4 getView() const;
+	float getTheta();
+	float getPhi();
+	bool isLookAt();
+	glm::vec4 getUpVector() const;
 	void setPerspective(bool perspective);
 	void setFOV(float newFov);
 	float getFOV() const;
@@ -33,23 +36,13 @@ private:
 	float left;
 
 	//Posicao da camera
+	bool cameraLookAt = false;
 	float cameraX = 0.0f;
 	float cameraY = 0.5f;
 	float cameraZ = -3.0f;
-
-	float cameraTheta = 0.0f;
-	float cameraPhi = 0.0f;
-
-	//View Vector
-	float viewRadius = 2.5f;
-	float viewTheta = 0.0f;
-	float viewPhi = 0.0f;
-
-	float viewX;
-	float viewY;
-	float viewZ;
-	
-	void updateViewVector();
+	float cameraTheta;
+	float cameraPhi;
+	float cameraRadius = 2.5f;
 };
 
 #endif

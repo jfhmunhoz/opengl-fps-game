@@ -68,6 +68,8 @@ void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 void CursorPosCallback(GLFWwindow* window, double xpos, double ypos);
 void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 
+void DrawBuilding();
+
 struct SceneObject
 {
     std::string  name;
@@ -84,6 +86,7 @@ std::map<std::string, SceneObject> g_VirtualScene;
 std::stack<glm::mat4>  g_MatrixStack;
 
 Player player;
+Camera camera;
 CollisionManager colission;
 
 bool hit = false;
@@ -144,6 +147,8 @@ float g_alvoX = 10.0f;
 float g_alvoY = 0.0f;
 float g_alvoZ = 10.0f;
 float g_alvoVelocity = 0.5f;
+
+input_t g_Input;
 
 int main(int argc, char* argv[])
 {
@@ -256,36 +261,15 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         float z = r*cos(g_CameraPhi)*cos(g_CameraTheta);
         float x = r*cos(g_CameraPhi)*sin(g_CameraTheta);
 
-        //Definindo o view vector baseado no angulo de visao da camera
-        g_ViewY = sin(g_ViewPhi);
-        g_ViewZ = cos(g_ViewPhi)*cos(g_ViewTheta);
-        g_ViewX = cos(g_ViewPhi)*sin(g_ViewTheta);
-
-        //Variaveis que definem a camera
-        glm::vec4 camera_view_vector = glm::vec4(g_ViewX, g_ViewY, g_ViewZ, 0.0f);
-        glm::vec4 camera_up_vector   = glm::vec4(0.0f,1.0f,0.0f,0.0f);
-        glm::vec4 camera_side_vector = crossproduct(camera_view_vector, camera_up_vector);
-        glm::vec4 camera_direction = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
-        glm::vec4 camera_displacement = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
-
-        if (g_Front) camera_direction += camera_view_vector;
-        if (g_Back) camera_direction -= camera_view_vector;
-        if (g_Right) camera_direction += camera_side_vector;
-        if (g_Left) camera_direction -= camera_side_vector;
-
-
         g_Seconds = (float)glfwGetTime();
         g_ElapsedSeconds = g_Seconds - g_OldSeconds;
         g_OldSeconds = g_Seconds;
 
-        camera_displacement = ((-3.0f*g_RightMouseButtonPressed)+g_CameraVelocity) * g_ElapsedSeconds *  camera_direction;
-        
-        g_CameraX += camera_displacement.x;
-        g_CameraY = 2.0f;
-        //g_CameraY += camera_displacement.y;
-        g_CameraZ += camera_displacement.z;
-
-        glm::vec4 camera_position_c  = glm::vec4(g_CameraX, g_CameraY, g_CameraZ, 1.0f);
+        player.update(g_ElapsedSeconds, g_Input);
+        camera = player.getCamera(); 
+        glm::vec4 camera_position_c  = camera.getPosition();
+        glm::vec4 camera_view_vector  = camera.getView();
+        glm::vec4 camera_up_vector = camera.getUpVector();
 
         glm::mat4 view = Matrix_Camera_View(camera_position_c, camera_view_vector, camera_up_vector);
 
@@ -293,11 +277,12 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
 
         float nearplane = -0.1f;
         float farplane  = -100.0f;
+        
 
         //Tiro player
         if(g_LeftMouseButtonPressed){
             glm::vec3 camPos = glm::vec3(camera_position_c.x,camera_position_c.y,camera_position_c.z);
-            glm::vec3 CamToAlvo = glm::normalize(glm::vec3(g_ViewX, g_ViewY, g_ViewZ));
+            glm::vec3 CamToAlvo = glm::normalize(glm::vec3(camera_view_vector.x, camera_view_vector.y, camera_view_vector.z));
             glm::vec3 alvoPos = glm::vec3(g_alvoX, g_alvoY+0.5f, g_alvoZ);
             if(colission.rayToSphere(camPos,CamToAlvo,alvoPos,0.4f) && player.getAmmo() > 0){
                 hit = true;
@@ -380,7 +365,7 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         glm::vec4 enemy2 = cubicBezier(p1, p2, p3, p4, tBezier);
         glm::vec4 enemy2view = cubicBezier(p1, p2, p3, p4, tBezier+0.01f) - enemy2;
         float enemy2_angle = -std::atan2(-enemy2view.x, enemy2view.z);
-        //enemy2
+        //rat
         model = 
               Matrix_Translate(enemy2.x, enemy2.y, enemy2.z)
               * Matrix_Rotate_Y(enemy2_angle)
@@ -389,87 +374,39 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         glUniform1i(g_object_id_uniform, RAT);
         DrawVirtualObject("street_rat");
 
-        //ceiling
-        model = 
-                Matrix_Translate(0.0f,4.0f,0.0f)
-              * Matrix_Rotate_Z(M_PI)
-              * Matrix_Scale(10.0f, 1.0f, 10.0f);
-        glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(g_object_id_uniform, CEILING);
-        DrawVirtualObject("the_plane");
-        
-        //floor
-        model = Matrix_Scale(10.0f, 1.0f, 10.0f)
-              * Matrix_Translate(0.0f,0.0f,0.0f);
-        glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(g_object_id_uniform, PLANE);
-        DrawVirtualObject("the_plane");
-
-        //wall
-        model = 
-                Matrix_Rotate_Y(3*M_PI_2)
-              * Matrix_Translate(10.0f,2.0f,0.0f)
-              * Matrix_Rotate_Z(M_PI_2)
-              * Matrix_Scale(2.0f, 1.0f, 10.0f);
-        glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(g_object_id_uniform, METAL_WALL);
-        DrawVirtualObject("the_plane");
-
-        model = 
-                Matrix_Rotate_Y(2*M_PI_2)
-              * Matrix_Translate(10.0f,2.0f,0.0f)
-              * Matrix_Rotate_Z(M_PI_2)
-              * Matrix_Scale(2.0f, 1.0f, 10.0f);
-        glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(g_object_id_uniform, BRICK_WALL);
-        DrawVirtualObject("the_plane");
-
-        model = 
-                Matrix_Rotate_Y(M_PI_2)
-              * Matrix_Translate(10.0f,2.0f,0.0f)
-              * Matrix_Rotate_Z(M_PI_2)
-              * Matrix_Scale(2.0f, 1.0f, 10.0f);
-        glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(g_object_id_uniform, BRICK_WALL);
-        DrawVirtualObject("the_plane");
-
-        model = 
-                Matrix_Translate(10.0f,2.0f,0.0f)
-              * Matrix_Rotate_Z(M_PI_2)
-              * Matrix_Scale(2.0f, 1.0f, 10.0f);
-        glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(g_object_id_uniform, BRICK_WALL);
-        DrawVirtualObject("the_plane");
 
         //gun
         float gun_animation = player.gunAnimation(g_Seconds);
         float gun_angle = -0.25f-std::cos(M_PI*gun_animation)/4;
-        if(gun_animation)
+        if(!camera.isLookAt())
         {
-                    model = 
-                            //Matrix_Translate(1.0f,1.0f,1.0f)
-                            Matrix_Translate(g_CameraX, g_CameraY, g_CameraZ)
-                          * Matrix_Rotate_Y(g_ViewTheta)
-                          * Matrix_Rotate_X(-g_ViewPhi)
-                          * Matrix_Translate(-(!g_RightMouseButtonPressed)*0.4f,-0.3f,0.8f)
-                          * Matrix_Rotate_X(gun_angle)
-                          * Matrix_Rotate_Y(M_PI)
-                          * Matrix_Scale(0.25f,0.25f,0.25f);
-                    glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-                    glUniform1i(g_object_id_uniform, GUN);
-                    DrawVirtualObject("gun");
-        }else{
-                    model = 
-                            //Matrix_Translate(1.0f,1.0f,1.0f)
-                            Matrix_Translate(g_CameraX, g_CameraY, g_CameraZ)
-                          * Matrix_Rotate_Y(g_ViewTheta)
-                          * Matrix_Rotate_X(-g_ViewPhi)
-                          * Matrix_Translate(-(!g_RightMouseButtonPressed)*0.4f,-0.3f,0.8f)
-                          * Matrix_Rotate_Y(M_PI)
-                          * Matrix_Scale(0.25f,0.25f,0.25f);
-                    glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-                    glUniform1i(g_object_id_uniform, GUN);
-                    DrawVirtualObject("gun");
+            if(gun_animation)
+            {
+                        model = 
+                                //Matrix_Translate(1.0f,1.0f,1.0f)
+                                Matrix_Translate(camera_position_c.x, camera_position_c.y, camera_position_c.z)
+                              * Matrix_Rotate_Y(camera.getTheta())
+                              * Matrix_Rotate_X(-camera.getPhi())
+                              * Matrix_Translate(-(!g_RightMouseButtonPressed)*0.4f,-0.3f,0.8f)
+                              * Matrix_Rotate_X(gun_angle)
+                              * Matrix_Rotate_Y(M_PI)
+                              * Matrix_Scale(0.25f,0.25f,0.25f);
+                        glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+                        glUniform1i(g_object_id_uniform, GUN);
+                        DrawVirtualObject("gun");
+            }else{
+                        model = 
+                                //Matrix_Translate(1.0f,1.0f,1.0f)
+                                Matrix_Translate(camera_position_c.x, camera_position_c.y, camera_position_c.z)
+                              * Matrix_Rotate_Y(camera.getTheta())
+                              * Matrix_Rotate_X(-camera.getPhi())
+                              * Matrix_Translate(-(!g_RightMouseButtonPressed)*0.4f,-0.3f,0.8f)
+                              * Matrix_Rotate_Y(M_PI)
+                              * Matrix_Scale(0.25f,0.25f,0.25f);
+                        glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+                        glUniform1i(g_object_id_uniform, GUN);
+                        DrawVirtualObject("gun");
+            }
         }
 
         model = Matrix_Scale(100.0f, 1.0f, 100.0f)
@@ -477,6 +414,16 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
         glUniform1i(g_object_id_uniform, PLANE);
         //DrawVirtualObject("the_plane");
+        DrawBuilding();
+        
+        //player
+        model = 
+              Matrix_Translate(player.getPosition().x, player.getPosition().y, player.getPosition().z)
+              * Matrix_Rotate_Y(camera.getTheta())
+              * Matrix_Scale(7.0f,7.0f,7.0f);
+        glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        glUniform1i(g_object_id_uniform, RAT);
+        DrawVirtualObject("street_rat");
 
         TextRendering_ShowEulerAngles(window);
         TextRendering_ShowProjection(window);
@@ -492,6 +439,62 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
     return 0;
 }
 
+void DrawBuilding()
+{
+    glm::mat4 model = Matrix_Identity();
+
+    //ceiling
+    model = 
+            Matrix_Translate(0.0f,4.0f,0.0f)
+          * Matrix_Rotate_Z(M_PI)
+          * Matrix_Scale(10.0f, 1.0f, 10.0f);
+    glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+    glUniform1i(g_object_id_uniform, CEILING);
+    DrawVirtualObject("the_plane");
+    
+    //floor
+    model = Matrix_Scale(10.0f, 1.0f, 10.0f)
+          * Matrix_Translate(0.0f,0.0f,0.0f);
+    glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+    glUniform1i(g_object_id_uniform, PLANE);
+    DrawVirtualObject("the_plane");
+
+    //wall
+    model = 
+            Matrix_Rotate_Y(3*M_PI_2)
+          * Matrix_Translate(10.0f,2.0f,0.0f)
+          * Matrix_Rotate_Z(M_PI_2)
+          * Matrix_Scale(2.0f, 1.0f, 10.0f);
+    glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+    glUniform1i(g_object_id_uniform, METAL_WALL);
+    DrawVirtualObject("the_plane");
+
+    model = 
+            Matrix_Rotate_Y(2*M_PI_2)
+          * Matrix_Translate(10.0f,2.0f,0.0f)
+          * Matrix_Rotate_Z(M_PI_2)
+          * Matrix_Scale(2.0f, 1.0f, 10.0f);
+    glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+    glUniform1i(g_object_id_uniform, BRICK_WALL);
+    DrawVirtualObject("the_plane");
+
+    model = 
+            Matrix_Rotate_Y(M_PI_2)
+          * Matrix_Translate(10.0f,2.0f,0.0f)
+          * Matrix_Rotate_Z(M_PI_2)
+          * Matrix_Scale(2.0f, 1.0f, 10.0f);
+    glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+    glUniform1i(g_object_id_uniform, BRICK_WALL);
+    DrawVirtualObject("the_plane");
+
+    model = 
+            Matrix_Translate(10.0f,2.0f,0.0f)
+          * Matrix_Rotate_Z(M_PI_2)
+          * Matrix_Scale(2.0f, 1.0f, 10.0f);
+    glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+    glUniform1i(g_object_id_uniform, BRICK_WALL);
+    DrawVirtualObject("the_plane");
+}
 
 void LoadTextureImage(const char* filename)
 {
@@ -981,17 +984,17 @@ void CursorPosCallback(GLFWwindow* window, double xpos, double ypos)
     float dx = xpos - g_LastCursorPosX;
     float dy = ypos - g_LastCursorPosY;
 
-    g_ViewTheta -= SENSITIVITY * dx;
-    g_ViewPhi -= SENSITIVITY * dy;
+    g_Input.theta -= SENSITIVITY * dx;
+    g_Input.phi -= SENSITIVITY * dy;
 
     float phimax = 3.141592f / 2;
     float phimin = -phimax;
 
-    if (g_ViewPhi > phimax)
-        g_ViewPhi = phimax;
+    if (g_Input.phi > phimax)
+        g_Input.phi = phimax;
 
-    if (g_ViewPhi < phimin)
-        g_ViewPhi = phimin;
+    if (g_Input.phi < phimin)
+        g_Input.phi = phimin;
 
     g_LastCursorPosX = xpos;
     g_LastCursorPosY = ypos;
@@ -1034,9 +1037,14 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
     }
     if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
     {
-        g_AngleX = 0.0f;
-        g_AngleY = 0.0f;
-        g_AngleZ = 0.0f;
+    }
+    if (key == GLFW_KEY_C && action == GLFW_PRESS)
+    {
+        g_Input.lookat = false;
+    }
+    if (key == GLFW_KEY_L && action == GLFW_PRESS)
+    {
+        g_Input.lookat = true;
     }
     if (key == GLFW_KEY_P && action == GLFW_PRESS)
     {
@@ -1060,27 +1068,27 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
 
     if (key == GLFW_KEY_W)
         if(action == GLFW_PRESS)
-            g_Front = true;
+            g_Input.front = true;
         else if(action == GLFW_RELEASE)
-            g_Front = false;
+            g_Input.front = false;
 
     if (key == GLFW_KEY_S)
         if(action == GLFW_PRESS)
-            g_Back = true;
+            g_Input.back = true;
         else if(action == GLFW_RELEASE)
-            g_Back = false;
+            g_Input.back = false;
 
     if (key == GLFW_KEY_D)
         if(action == GLFW_PRESS)
-            g_Right = true;
+            g_Input.right = true;
         else if(action == GLFW_RELEASE)
-            g_Right = false;
+            g_Input.right = false;
 
     if (key == GLFW_KEY_A)
         if(action == GLFW_PRESS)
-            g_Left = true;
+            g_Input.left = true;
         else if(action == GLFW_RELEASE)
-            g_Left = false;
+            g_Input.left = false;
 
 }
 
