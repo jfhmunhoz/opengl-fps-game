@@ -3,7 +3,7 @@
 |-----------------------------------------------------+-----------|
 | Malhas poligonais complexas                         |     X     |
 | Transformações geométricas controladas pelo usuário |     X     |
-| Câmera livre e câmera look-at                       |In progress|
+| Câmera livre e câmera look-at                       |     X     |
 | Instâncias de objetos                               |           |
 | Três tipos de testes de intersecção                 |           |
 | Modelos de Iluminação Difusa e Blinn-Phong          |           |
