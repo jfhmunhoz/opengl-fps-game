@@ -206,6 +206,7 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
     LoadTextureImage("../../data/gun/textures/GUN_Material.003_BaseColor.jpg");
     LoadTextureImage("../../data/street_rat/textures/street_rat_diff_4k.jpg");
     LoadTextureImage("../../data/robot2/Chopper_BaseColor.png");
+    LoadTextureImage("../../data/penguin/Penguin_Albedo.png");
 
     ObjModel spheremodel("../../data/sphere.obj");
     ComputeNormals(&spheremodel);
@@ -235,6 +236,15 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
     std::vector<std::string> robot2_part_names;
     for (const auto& shape : robot2model.shapes) {
         robot2_part_names.push_back(shape.name);
+    }
+
+    ObjModel penguinmodel("../../data/penguin/penguin.obj");
+    ComputeNormals(&penguinmodel);
+    BuildTrianglesAndAddToVirtualScene(&penguinmodel);
+    //next 4 lines given by GPT-4.1
+    std::vector<std::string> penguin_part_names;
+    for (const auto& shape : penguinmodel.shapes) {
+        penguin_part_names.push_back(shape.name);
     }
 
     ObjModel ratmodel("../../data/street_rat/street_rat_4k.obj");
@@ -330,6 +340,7 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         #define ROBOT 6
         #define RAT 7
         #define ROBOT2 8
+        #define PENGUIN 9
 
         glm::vec3 alvo_direction = glm::vec3((g_CameraX - g_alvoX), 0.0f, (g_CameraZ - g_alvoZ));
         alvo_direction = glm::normalize(alvo_direction);
@@ -420,10 +431,14 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         model = 
               Matrix_Translate(player.getPosition().x, player.getPosition().y, player.getPosition().z)
               * Matrix_Rotate_Y(camera.getTheta())
-              * Matrix_Scale(7.0f,7.0f,7.0f);
+              * Matrix_Scale(1.0f,1.0f,1.0f);
         glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(g_object_id_uniform, RAT);
-        DrawVirtualObject("street_rat");
+        glUniform1i(g_object_id_uniform, PENGUIN);
+        for (const auto& name : penguin_part_names) {
+            int matid = g_VirtualScene[name].material_id;
+            glUniform1i(glGetUniformLocation(g_GpuProgramID, "material_id"), matid);
+            DrawVirtualObject(name.c_str());
+        }
 
         TextRendering_ShowEulerAngles(window);
         TextRendering_ShowProjection(window);
@@ -590,6 +605,7 @@ void LoadShadersFromFiles()
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage3"), 3);
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage4"), 4);
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage5"), 5);
+    glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage6"), 6);
     glUseProgram(0);
 }
 

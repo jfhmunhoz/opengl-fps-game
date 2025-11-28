@@ -28,6 +28,7 @@ uniform mat4 projection;
 #define ROBOT 6
 #define RAT 7
 #define ROBOT2 8
+#define PENGUIN 9
 
 uniform int object_id;
 
@@ -42,6 +43,7 @@ uniform sampler2D TextureImage2;
 uniform sampler2D TextureImage3;
 uniform sampler2D TextureImage4;
 uniform sampler2D TextureImage5;
+uniform sampler2D TextureImage6;
 
 // O valor de saída ("out") de um Fragment Shader é a cor final do fragmento.
 out vec4 color;
@@ -259,6 +261,25 @@ void main()
 
         // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
         Kd = texture(TextureImage4, vec2(U,V)).rgb;
+        // Equação de Iluminação
+        float lambert = max(0,dot(n,l));
+
+
+        color.rgb = Kd;
+
+        color.a = 1;
+
+        // Cor final com correção gamma, considerando monitor sRGB.
+        color.rgb = pow(color.rgb, vec3(1.0,1.0,1.0)/2.2);
+    }
+    else if ( object_id == PENGUIN )
+    {
+        // Coordenadas de textura do plano, obtidas do arquivo OBJ.
+        U = texcoords.x;
+        V = texcoords.y;
+
+        // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
+        Kd = texture(TextureImage6, vec2(U,V)).rgb;
         // Equação de Iluminação
         float lambert = max(0,dot(n,l));
 
