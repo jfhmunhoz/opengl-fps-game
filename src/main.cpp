@@ -190,6 +190,7 @@ glfwSetScrollCallback(window, ScrollCallback);
 glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 glfwMakeContextCurrent(window);
+glfwSwapInterval(2);
 
 gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
 
