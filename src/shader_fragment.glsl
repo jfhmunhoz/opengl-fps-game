@@ -45,6 +45,7 @@ out vec4 color;
 uniform int material_id;
 uniform vec4 player_view;
 uniform int player_dead;
+uniform float time;
 
 // Constantes
 #define M_PI   3.14159265358979323846
@@ -189,22 +190,65 @@ void main()
     if(object_id == PENGUIN && dot(v,n)<=0.3)
         color.rgb = vec3(0.0,0.0,0.0);
 
-    color.a = 1;
-    color.rgb = pow(color.rgb, vec3(1.0,1.0,1.0)/2.2);
+    //if ( object_id == SPHERE )
+    //{
+    //    float spin_speed = 2.0;
+    //    float pulse_speed = 3.0;
+    //    float angle = time * spin_speed;
+    //    
+    //    vec4 light_to_point = normalize(p - source_position);
+    //    
+    //    float cos_a = cos(angle);
+    //    float sin_a = sin(angle);
+    //    
+    //    vec3 rotated;
+    //    rotated.x = light_to_point.x * cos_a - light_to_point.z * sin_a;
+    //    rotated. y = light_to_point.y;
+    //    rotated. z = light_to_point.x * sin_a + light_to_point. z * cos_a;
+    //    
+    //    // Add pulsing brightness
+    //    float pulse = 0.5 + 0.5 * sin(time * pulse_speed);
+    //    
+    //    color.rgb = (rotated * 0.5 + 0.5) * (0.7 + 0.3 * pulse);
+    //}
 
 
-    //Rainbow
-    //vec4 light_to_point = normalize(p - source_position);
-    //color.rgb = light_to_point. xyz * 0.5 + 0.5;
-
-    //Dark
-    //float dist = length(p - source_position);
-    //color.rgb = vec3(dist / 100.0);
+    //if ( object_id == SPHERE )
+    //{
+    //    //Rainbow
+    //    vec4 light_to_point = normalize(p - source_position);
+    //    color.rgb = light_to_point. xyz * 0.5 + 0.5;
+    //}
 
     //Cool white effect
     if (player_dead == 1) {
         float NdotL = dot(n, l);
         color. rgb = vec3(NdotL);
     }
+
+    if ( object_id == SPHERE )
+    {
+        vec3 surface_dir = normalize(p.xyz);
+        
+        // Multiple overlapping waves for trippy effect
+        float t = time * 0.5;
+        
+        color.r = 0.5 + 0.5 * sin(surface_dir.x * 3.0 + t * 2.0);
+        color.g = 0.5 + 0.5 * sin(surface_dir.y * 3.0 + t * 2.5 + 2.094);
+        color.b = 0.5 + 0.5 * sin(surface_dir.z * 3.0 + t * 3.0 + 4.188);
+
+        if(dot(v,n)<=0.5)
+            color.rgb = color.gbr;
+    }
+
+    color.a = 1;
+    color.rgb = pow(color.rgb, vec3(1.0,1.0,1.0)/2.2);
+
+
+
+    //Dark
+    //float dist = length(p - source_position);
+    //color.rgb = vec3(dist / 100.0);
+
 } 
 

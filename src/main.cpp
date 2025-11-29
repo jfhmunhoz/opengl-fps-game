@@ -71,8 +71,10 @@ void CursorPosCallback(GLFWwindow* window, double xpos, double ypos);
 void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 
 void DrawBuilding();
+void DrawSphere(glm::vec3 position, float radius);
 void DrawEnemy(Enemy enemy, std::vector<std::string> robot_part_names);
 void DrawSecurityCamera(Player player);
+bool checkWallCollisions(glm::vec3 position, float radius);
 
 struct SceneObject
 {
@@ -139,12 +141,16 @@ GLint g_object_id_uniform;
 GLint g_bbox_min_uniform;
 GLint g_bbox_max_uniform;
 GLint g_player_dead_uniform;
+GLint g_time_uniform;
 
 GLuint g_NumLoadedTextures = 0;
 
 float g_OldSeconds = 0.0f;
 float g_Seconds;
 float g_ElapsedSeconds;
+float g_LastResetTime = 0.0f;
+
+bool g_Reset = false;
 
 
 input_t g_Input;
@@ -275,7 +281,24 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
 
         glUseProgram(g_GpuProgramID);
 
-        g_Seconds = (float)glfwGetTime();
+        if(g_Reset)
+        {
+            enemies.clear();
+            g_LastSpawnTime = 0.0f;
+            g_SpawnInterval = 5.0f;
+            g_EnemySpeed = 2.0f;
+            g_MaxEnemies = 2;
+            g_CurrentEnemies = 0;
+            g_UsePerspectiveProjection = true;
+            g_ShowInfoText = true;
+            g_OldSeconds = 0.0f;
+            g_Reset = false;
+            g_LastResetTime = (float)glfwGetTime();
+
+            player.reset();
+        }
+
+        g_Seconds = (float)glfwGetTime() - g_LastResetTime;
         g_ElapsedSeconds = g_Seconds - g_OldSeconds;
         g_OldSeconds = g_Seconds;
 
@@ -294,7 +317,7 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         
 
         //Tiro player
-        if(g_LeftMouseButtonPressed)
+        if(g_LeftMouseButtonPressed && !camera.isLookAt())
         {
             glm::vec3 camPos = glm::vec3(camera_position_c.x, camera_position_c.y, camera_position_c.z);
             glm::vec3 CamToAlvo = glm::normalize(glm::vec3(camera_view_vector.x, camera_view_vector.y, camera_view_vector.z));
@@ -313,7 +336,7 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
                             player.addScore(1);
                             enemy.die();
                             g_SpawnInterval *= 0.9f;
-                            g_EnemySpeed *= 1.1f;
+                            g_EnemySpeed *= 1.01f;
                             break;
                         }
                     }
@@ -437,6 +460,8 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
 
         DrawBuilding();
         
+        glm::vec3 spherePosition = glm::vec3(0.0f,0.5f+0.25f*cos(2*g_Seconds),0.0f);
+        DrawSphere(spherePosition, 0.2f);
         //player
         if (player.isAlive())
         {
@@ -452,14 +477,17 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
                 }
             }
         }
+        player.setCollision(checkWallCollisions(player.getNextPosition(g_ElapsedSeconds, g_Input), 1.0f));
+
         glUniform1i(g_player_dead_uniform, player.isAlive() ? 0 : 1);
+        glUniform1f(g_time_uniform, g_Seconds);
 
         glUniform4fv(glGetUniformLocation(g_GpuProgramID, "player_view"), 1, glm::value_ptr(glm::normalize(player.getViewVector())));
         if(camera.isLookAt())
         {
             model = 
                   Matrix_Translate(player.getPosition().x, player.getPosition().y, player.getPosition().z)
-                  * Matrix_Rotate_Y(camera.getTheta())
+                  * Matrix_Rotate_Y(player.isAlive()*camera.getTheta())
                   * Matrix_Scale(2.0f,2.0f,2.0f);
             glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
             glUniform1i(g_object_id_uniform, PENGUIN);
@@ -470,7 +498,7 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
             }
             model = 
                   Matrix_Translate(player.getPosition().x, player.getPosition().y, player.getPosition().z)
-                  * Matrix_Rotate_Y(camera.getTheta())
+                  * Matrix_Rotate_Y(player.isAlive()*camera.getTheta())
                   * Matrix_Translate(-0.95f,0.7f,0.6f)
                   * Matrix_Rotate_X(0.5f)
                   * Matrix_Rotate_Y(M_PI)
@@ -562,6 +590,43 @@ void DrawSecurityCamera(Player player)
     glUniform1i(g_object_id_uniform, CAMERA);
     DrawVirtualObject("security_camera_02_mount");
 }
+
+void DrawSphere(glm::vec3 position, float radius)
+{
+    glm::mat4 model = Matrix_Identity();
+
+    model = 
+                Matrix_Translate(position.x,position.y,position.z)
+              * Matrix_Scale(radius,radius,radius);
+    glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+    glUniform1i(g_object_id_uniform, SPHERE);
+    DrawVirtualObject("the_sphere");
+}
+
+bool checkWallCollisions(glm::vec3 position, float radius)
+{
+    if(colission.spherePlaneCollision(position,radius,glm::vec3(10.0f,0.0f,0.0f),glm::vec3(-1.0f,0.0f,0.0f)))
+    {
+        return true;
+    }
+    if(colission.spherePlaneCollision(position,radius,glm::vec3(-10.0f,0.0f,0.0f),glm::vec3(1.0f,0.0f,0.0f)))
+    {
+        return true;
+    }
+    if(colission.spherePlaneCollision(position,radius,glm::vec3(0.0f,0.0f,10.0f),glm::vec3(0.0f,0.0f,-1.0f)))
+    {
+        return true;
+    }
+    if(colission.spherePlaneCollision(position,radius,glm::vec3(0.0f,0.0f,-10.0f),glm::vec3(0.0f,0.0f,1.0f)))
+    {
+        return true;
+    }
+    
+    return false;
+}
+
+
+
 
 void DrawBuilding()
 {
@@ -751,6 +816,7 @@ void LoadShadersFromFiles()
     g_bbox_min_uniform   = glGetUniformLocation(g_GpuProgramID, "bbox_min");
     g_bbox_max_uniform   = glGetUniformLocation(g_GpuProgramID, "bbox_max");
     g_player_dead_uniform = glGetUniformLocation(g_GpuProgramID, "player_dead");
+    g_time_uniform = glGetUniformLocation(g_GpuProgramID, "time");
 
     glUseProgram(g_GpuProgramID);
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage0"), 0);
@@ -1227,10 +1293,11 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
     }
     if (key == GLFW_KEY_R && action == GLFW_PRESS)
     {
-        LoadShadersFromFiles();
-        fprintf(stdout,"Shaders recarregados!\n");
-        fflush(stdout);
         player.reload();
+    }
+    if (key == GLFW_KEY_N && action == GLFW_RELEASE)
+    {
+        g_Reset = true;
     }
 
     if (key == GLFW_KEY_W)

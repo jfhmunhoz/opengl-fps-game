@@ -30,5 +30,5 @@ bool CollisionManager::spherePlaneCollision(
 {
     float dist = glm::dot(sphereCenter - planePoint, planeNormal);
     //return fabs(dist) <= radius;
-    return dist <= radius && dist >= 0.0f;
+    return dist < radius;
 }

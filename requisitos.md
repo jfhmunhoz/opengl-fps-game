@@ -4,8 +4,8 @@
 | Malhas poligonais complexas                         |     X     |
 | Transformações geométricas controladas pelo usuário |     X     |
 | Câmera livre e câmera look-at                       |     X     |
-| Instâncias de objetos                               |           |
-| Três tipos de testes de intersecção                 |           |
+| Instâncias de objetos                               |     X     |
+| Três tipos de testes de intersecção                 |     X     |
 | Modelos de Iluminação Difusa e Blinn-Phong          |     X     |
 | Modelos de Interpolação de Phong e Gouraud          |     X     |
 | Mapeamento de texturas em todos os objetos          |     X     |

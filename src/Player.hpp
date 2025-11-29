@@ -38,13 +38,14 @@ public:
 
     void setPosition(float x, float y, float z);
     void setViewDirection(float theta, float phi);
-    void setColision(bool collided);
+    void setCollision(bool collided);
 
     void shoot(float time);
     void reload();
     void addScore(int points);
     float gunAnimation(float time);
     void dead();
+    void reset();
 
     Camera& getCamera();
     

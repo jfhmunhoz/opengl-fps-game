@@ -2,7 +2,7 @@
 #include "collisions.hpp"
 
 Player::Player()
-    : posX(0.0f), posY(2.0f), posZ(0.0f), nroBalas(6), pontuacao(0), maxAmmo(6), velocity(PLAYER_VELOCITY), collision(false), alive(true)
+    : posX(0.0f), posY(0.0f), posZ(0.0f), nroBalas(6), pontuacao(0), maxAmmo(6), velocity(PLAYER_VELOCITY), collision(false), alive(true)
 {
     Camera camera;
 }
@@ -148,6 +148,10 @@ Camera& Player::getCamera()
     return camera;
 }
 
+void Player::setCollision(bool collided)
+{
+    collision = collided;
+}
 void Player::resetPoints()
 {
     pontuacao = 0;
@@ -157,4 +161,23 @@ void Player::addPoints()
 {
     pontuacao++;
 }
+
+void Player::reset()
+{
+    alive = true;
+    posX = 0.0f;
+    posY = 0.0f;
+    posZ = 0.0f;
+    velocity = PLAYER_VELOCITY;
+    collision = false;
+    viewRadius = 2.5f;
+    viewTheta = 0.0f;
+    viewPhi = 0.0f;
+    nroBalas = 6;
+    pontuacao = 0;
+    prevShotTime = 0;
+    shooting = false;
+}
+
+
 

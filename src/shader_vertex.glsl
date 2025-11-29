@@ -143,23 +143,7 @@ void main()
     vec3 Ks = vec3(0.0f,0.0f,0.0f);
     float q = 0.0;
 
-    if ( object_id == SPHERE )
-    {
-        vec4 bbox_center = (bbox_min + bbox_max) / 2.0;
-
-        float raio = 1.0;
-        vec4 p_linha = bbox_center + raio * normalize(position_model - bbox_center);
-        vec4 p_vector = p_linha - bbox_center;
-
-        float theta = atan(p_vector.x, p_vector.z);
-        float phi = asin(p_vector.y / raio);
-
-        U = (theta + M_PI) / (2 * M_PI);
-        V = (phi + M_PI_2) / M_PI;
-        Kd = vec3(0.5f,0.5f,0.5f);
-        Ka = 0.5*Kd;
-    }
-    else if ( object_id == ROBOT )
+    if ( object_id == ROBOT )
     {
         if (material_id == 0) { // Drill
             Kd = vec3(0.110689, 0.110689, 0.110689);
