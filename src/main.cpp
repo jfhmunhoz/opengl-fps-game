@@ -101,10 +101,17 @@ std::map<std::string, SceneObject> g_VirtualScene;
 std::stack<glm::mat4>  g_MatrixStack;
 
 Player player;
-Enemy enemy(glm::vec3(9.0f,0.0f,9.0f),player.getPosition(),2.0f);
 Camera camera;
 CollisionManager colission;
 
+std::vector<Enemy> enemies;
+float g_LastSpawnTime = 0.0f;
+float g_SpawnInterval = 5.0f;
+int g_MaxEnemies = 10;
+void spawnEnemy();
+glm::vec3 getRandomSpawnPosition();
+
+//
 bool hit = false;
 float g_ScreenRatio = 1.0f;
 
@@ -284,13 +291,27 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         
 
         //Tiro player
-        if(g_LeftMouseButtonPressed){
-            glm::vec3 camPos = glm::vec3(camera_position_c.x,camera_position_c.y,camera_position_c.z);
+        if(g_LeftMouseButtonPressed)
+        {
+            glm::vec3 camPos = glm::vec3(camera_position_c.x, camera_position_c.y, camera_position_c.z);
             glm::vec3 CamToAlvo = glm::normalize(glm::vec3(camera_view_vector.x, camera_view_vector.y, camera_view_vector.z));
-            glm::vec3 alvoPos = glm::vec3(enemy.getPosition().x, enemy.getPosition().y+0.5f, enemy.getPosition().z);
-            if(colission.rayToSphere(camPos,CamToAlvo,alvoPos,0.4f) && player.getAmmo() > 0){
-                hit = true;
-                player.addScore(1);
+            
+            hit = false;
+            if(player.getAmmo() > 0)
+            {
+                for (auto& enemy : enemies)
+                {
+                    if (enemy.isAlive())
+                    {
+                        glm::vec3 alvoPos = glm::vec3(enemy.getPosition(). x, enemy.getPosition().y + 0.5f, enemy.getPosition().z);
+                        if(colission. rayToSphere(camPos, CamToAlvo, alvoPos, 0.4f)){
+                            hit = true;
+                            player.addScore(1);
+                            enemy.die();
+                            break;
+                        }
+                    }
+                }
             }
             player.shoot(g_Seconds);
         }
@@ -336,8 +357,19 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         #define CAMERA 10
 
         //enemy
-        enemy.update(g_ElapsedSeconds, player.getPosition());
-        DrawEnemy(enemy, robot_part_names);
+        if (g_Seconds - g_LastSpawnTime > g_SpawnInterval && static_cast<int>(enemies.size()) < g_MaxEnemies)
+        {
+            spawnEnemy();
+            g_LastSpawnTime = g_Seconds;
+        }
+        for (auto& enemy : enemies)
+        {
+            if (enemy.isAlive())
+            {
+                enemy.update(g_ElapsedSeconds, player.getPosition());
+                DrawEnemy(enemy, robot_part_names);
+            }
+        }
 
         //camera
         DrawSecurityCamera(player);
@@ -442,6 +474,28 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
 
     return 0;
 }
+
+glm::vec3 getRandomSpawnPosition()
+{
+    float random = static_cast<float>(rand() % 4);
+    
+    switch(static_cast<int>(random)) {
+        case 0: return glm::vec3(9.0f,0.0f,9.0f);
+        case 1: return glm::vec3(-9.0f,0.0f,9.0f);
+        case 2: return glm::vec3(9.0f,0.0f,-9.0f);
+        case 3: return glm::vec3(-9.0f,0.0f,-9.0f);
+        default: return glm::vec3(9.0f,0.0f,9.0f);
+    }
+}
+
+void spawnEnemy()
+{
+    glm::vec3 spawnPos = getRandomSpawnPosition();
+    float speed = 1.5f + static_cast<float>(rand() % 100) / 100.0f;
+    enemies.emplace_back(spawnPos, player.getPosition(), speed);
+}
+
+
 
 void DrawEnemy(Enemy enemy, std::vector<std::string> robot_part_names)
 {
