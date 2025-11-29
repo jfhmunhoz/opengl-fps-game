@@ -83,6 +83,17 @@ struct SceneObject
     int          material_id = -1;
 };
 
+struct ColisionObject
+{
+    std::string nome;
+    glm::mat4 model;
+    glm::vec3 bbox_min_local;
+    glm::vec3 bbox_max_local;
+    int tipo;
+};
+
+std::vector<ColisionObject> mapa; 
+
 std::map<std::string, SceneObject> g_VirtualScene;
 std::stack<glm::mat4>  g_MatrixStack;
 
@@ -508,6 +519,17 @@ void DrawBuilding()
     glUniform1i(g_object_id_uniform, METAL_WALL);
     DrawVirtualObject("the_plane");
 
+    ColisionObject parede1;
+    parede1.nome = "the_plane";
+    parede1.model =  Matrix_Rotate_Y(3*M_PI_2)
+          * Matrix_Translate(10.0f,2.0f,0.0f)
+          * Matrix_Rotate_Z(M_PI_2)
+          * Matrix_Scale(2.0f, 1.0f, 10.0f);
+    parede1.bbox_min_local = g_VirtualScene["the_plane"].bbox_min;
+    parede1.bbox_max_local = g_VirtualScene["the_plane"].bbox_max;
+    parede1.tipo = METAL_WALL;
+    mapa.push_back(parede1);
+
     model = 
             Matrix_Rotate_Y(2*M_PI_2)
           * Matrix_Translate(10.0f,2.0f,0.0f)
@@ -516,6 +538,17 @@ void DrawBuilding()
     glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
     glUniform1i(g_object_id_uniform, BRICK_WALL);
     DrawVirtualObject("the_plane");
+
+    ColisionObject parede2;
+    parede2.nome = "the_plane";
+    parede2.model =  Matrix_Rotate_Y(2*M_PI_2)
+          * Matrix_Translate(10.0f,2.0f,0.0f)
+          * Matrix_Rotate_Z(M_PI_2)
+          * Matrix_Scale(2.0f, 1.0f, 10.0f);
+    parede2.bbox_min_local = g_VirtualScene["the_plane"].bbox_min;
+    parede2.bbox_max_local = g_VirtualScene["the_plane"].bbox_max;
+    parede2.tipo = METAL_WALL;
+    mapa.push_back(parede2);
 
     model = 
             Matrix_Rotate_Y(M_PI_2)
@@ -526,6 +559,17 @@ void DrawBuilding()
     glUniform1i(g_object_id_uniform, BRICK_WALL);
     DrawVirtualObject("the_plane");
 
+    ColisionObject parede3;
+    parede3.nome = "the_plane";
+    parede3.model =  Matrix_Rotate_Y(M_PI_2)
+          * Matrix_Translate(10.0f,2.0f,0.0f)
+          * Matrix_Rotate_Z(M_PI_2)
+          * Matrix_Scale(2.0f, 1.0f, 10.0f);
+    parede3.bbox_min_local = g_VirtualScene["the_plane"].bbox_min;
+    parede3.bbox_max_local = g_VirtualScene["the_plane"].bbox_max;
+    parede3.tipo = METAL_WALL;
+    mapa.push_back(parede3);
+
     model = 
             Matrix_Translate(10.0f,2.0f,0.0f)
           * Matrix_Rotate_Z(M_PI_2)
@@ -533,6 +577,17 @@ void DrawBuilding()
     glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
     glUniform1i(g_object_id_uniform, BRICK_WALL);
     DrawVirtualObject("the_plane");
+
+    ColisionObject parede4;
+    parede4.nome = "the_plane";
+    parede4.model =  Matrix_Rotate_Y(M_PI_2)
+          * Matrix_Translate(10.0f,2.0f,0.0f)
+          * Matrix_Rotate_Z(M_PI_2)
+          * Matrix_Scale(2.0f, 1.0f, 10.0f);
+    parede4.bbox_min_local = g_VirtualScene["the_plane"].bbox_min;
+    parede4.bbox_max_local = g_VirtualScene["the_plane"].bbox_max;
+    parede4.tipo = METAL_WALL;
+    mapa.push_back(parede4);
 }
 
 void LoadTextureImage(const char* filename)
