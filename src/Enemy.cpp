@@ -3,29 +3,50 @@
 #include <glm/geometric.hpp>
 #include <algorithm>
 
-Enemy::Enemy(glm::vec3 position, glm::vec3 targetPosition)
-    : position(position), targetPosition(targetPosition), health(100.0f), speed(2.0f)
+Enemy::Enemy(glm::vec3 position, glm::vec3 targetPosition, float speed)
+    : position(position), targetPosition(targetPosition), alive(true), speed(speed)
 {
-}
-
-void Enemy::update(float deltaTime)
-{
-    if (!isAlive()) return;
-    
-    glm::vec3 direction = glm::normalize(targetPosition - position);
-    position += direction * speed * deltaTime;
-    
-    modelMatrix = glm::translate(glm::mat4(1.0f), position);
-}
-
-void Enemy::render()
-{
-    // TODO: Implement rendering using g_VirtualScene
 }
 
 glm::vec3 Enemy::getPosition() const
 {
     return position;
+}
+
+glm::vec3 Enemy::getNextPosition(float deltaTime, glm::vec3 targetPosition)
+{
+    direction = glm::vec3((targetPosition.x - position.x), 0.0f, (targetPosition.z - position.z));
+    direction = glm::normalize(direction);
+    glm::vec3 displacement = glm::vec3(0.0f, 0.0f, 0.0f);
+
+    displacement = speed * deltaTime *  direction;
+    
+    return glm::vec3(position.x+displacement.x, 0.0f, position.z+displacement.z);
+}
+
+float Enemy::getAngle() const
+{
+    return -std::atan2(-direction.x, direction.z);
+}
+
+void Enemy::update(float deltaTime, glm::vec3 targetPosition)
+{
+    if(!collision)
+    {
+        glm::vec3 nextPos = getNextPosition(deltaTime, targetPosition);
+        position.x = nextPos.x;
+        position.y = nextPos.y;
+        position.z = nextPos.z;
+    }
+
+    direction = glm::vec3((targetPosition.x - position.x), 0.0f, (targetPosition.z - position.z));
+}
+
+
+
+glm::vec3 Enemy::getTargetPosition() const
+{
+    return targetPosition;
 }
 
 glm::vec3 Enemy::getBoundingBox() const
@@ -35,10 +56,10 @@ glm::vec3 Enemy::getBoundingBox() const
 
 bool Enemy::isAlive() const
 {
-    return health > 0.0f;
+    return alive;
 }
 
-void Enemy::takeDamage(float damage)
+void Enemy::die()
 {
-    health = std::max(0.0f, health - damage);
+    alive = false;
 }

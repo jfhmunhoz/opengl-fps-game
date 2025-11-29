@@ -22,6 +22,7 @@
 #include "matrices.h"
 #include "Player.cpp"
 #include "Camera.cpp"
+#include "Enemy.cpp"
 #include "collisions.cpp"
 #include "bezier.hpp"
 // #include <unistd.h>
@@ -70,6 +71,8 @@ void CursorPosCallback(GLFWwindow* window, double xpos, double ypos);
 void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 
 void DrawBuilding();
+void DrawEnemy(Enemy enemy, std::vector<std::string> robot_part_names);
+void DrawSecurityCamera(Player player);
 
 struct SceneObject
 {
@@ -98,6 +101,7 @@ std::map<std::string, SceneObject> g_VirtualScene;
 std::stack<glm::mat4>  g_MatrixStack;
 
 Player player;
+Enemy enemy(glm::vec3(9.0f,0.0f,9.0f),player.getPosition(),2.0f);
 Camera camera;
 CollisionManager colission;
 
@@ -132,10 +136,6 @@ float g_OldSeconds = 0.0f;
 float g_Seconds;
 float g_ElapsedSeconds;
 
-float g_alvoX = 10.0f;
-float g_alvoY = 0.0f;
-float g_alvoZ = 10.0f;
-float g_alvoVelocity = 0.5f;
 
 input_t g_Input;
 
@@ -287,7 +287,7 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         if(g_LeftMouseButtonPressed){
             glm::vec3 camPos = glm::vec3(camera_position_c.x,camera_position_c.y,camera_position_c.z);
             glm::vec3 CamToAlvo = glm::normalize(glm::vec3(camera_view_vector.x, camera_view_vector.y, camera_view_vector.z));
-            glm::vec3 alvoPos = glm::vec3(g_alvoX, g_alvoY+0.5f, g_alvoZ);
+            glm::vec3 alvoPos = glm::vec3(enemy.getPosition().x, enemy.getPosition().y+0.5f, enemy.getPosition().z);
             if(colission.rayToSphere(camPos,CamToAlvo,alvoPos,0.4f) && player.getAmmo() > 0){
                 hit = true;
                 player.addScore(1);
@@ -335,58 +335,12 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         #define PENGUIN 9
         #define CAMERA 10
 
-        // glm::vec3 alvo_direction = glm::vec3((g_CameraX - g_alvoX), 0.0f, (g_CameraZ - g_alvoZ));
-        glm::vec3 alvo_direction = glm::vec3((g_alvoX), 0.0f, (g_alvoZ));
-        alvo_direction = glm::normalize(alvo_direction);
-        glm::vec3 alvo_displacement = glm::vec3(0.0f, 0.0f, 0.0f);
-
-        g_alvoVelocity = 0.0f;
-        alvo_displacement = g_alvoVelocity * g_ElapsedSeconds *  alvo_direction;
-        
-        g_alvoX += alvo_displacement.x;
-        g_alvoY = 0.0f;
-        g_alvoZ += alvo_displacement.z;
-
-        float enemy_angle = -std::atan2(-alvo_direction.x, alvo_direction.z);
         //enemy
-        model = 
-                Matrix_Translate(g_alvoX,g_alvoY,g_alvoZ)
-              * Matrix_Rotate_Y(enemy_angle-M_PI_2)
-              * Matrix_Scale(0.25f,0.25f,0.25f);
-        glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(g_object_id_uniform, ROBOT);
-        //for loop given by GPT-4.1
-        for (const auto& name : robot_part_names) {
-            int matid = g_VirtualScene[name].material_id;
-            glUniform1i(glGetUniformLocation(g_GpuProgramID, "material_id"), matid);
-            DrawVirtualObject(name.c_str());
-        }
+        enemy.update(g_ElapsedSeconds, player.getPosition());
+        DrawEnemy(enemy, robot_part_names);
 
         //camera
-        glm::vec3 security_camera_position = glm::vec3(0.0f,3.0f,10.0f);
-        glm::vec3 security_camera_direction = glm::normalize(glm::vec3(player.getPosition().x, player.getPosition().y+CAMERA_HEIGHT, player.getPosition().z) - security_camera_position);
-        float sec_camera_theta = -std::atan2(security_camera_direction.x, -security_camera_direction.z);
-        float sec_camera_phi = std::atan2(security_camera_direction.y, glm::length(glm::vec2(security_camera_direction.x, security_camera_direction.z)));
-
-        model = 
-                Matrix_Translate(security_camera_position.x,security_camera_position.y,security_camera_position.z)
-              * Matrix_Translate(0.0f,0.1f,-0.15f)
-              * Matrix_Rotate_Y(sec_camera_theta)
-              * Matrix_Rotate_X(sec_camera_phi)
-              * Matrix_Translate(0.0f,-0.1f,0.15f)
-              * Matrix_Rotate_Y(M_PI)
-              * Matrix_Scale(1.0f,1.0f,1.0f);
-        glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(g_object_id_uniform, CAMERA);
-        DrawVirtualObject("security_camera_02");
-
-        model = 
-                Matrix_Translate(security_camera_position.x,security_camera_position.y,security_camera_position.z)
-              * Matrix_Rotate_Y(M_PI)
-              * Matrix_Scale(1.0f,1.0f,1.0f);
-        glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(g_object_id_uniform, CAMERA);
-        DrawVirtualObject("security_camera_02_mount");
+        DrawSecurityCamera(player);
 
         glm::vec4 p1 = glm::vec4(-10.0f, 0.0f, -10.0f, 1.0f);
         glm::vec4 p2 = glm::vec4(-10.0f, 0.0f, 10.0f, 1.0f);
@@ -489,6 +443,54 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
     return 0;
 }
 
+void DrawEnemy(Enemy enemy, std::vector<std::string> robot_part_names)
+{
+    glm::mat4 model = Matrix_Identity();
+
+    model = 
+            Matrix_Translate(enemy.getPosition().x,enemy.getPosition().y,enemy.getPosition().z)
+          * Matrix_Rotate_Y(enemy.getAngle()-M_PI_2)
+          * Matrix_Scale(0.25f,0.25f,0.25f);
+    glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+    glUniform1i(g_object_id_uniform, ROBOT);
+    //for loop given by GPT-4.1
+    for (const auto& name : robot_part_names) {
+        int matid = g_VirtualScene[name].material_id;
+        glUniform1i(glGetUniformLocation(g_GpuProgramID, "material_id"), matid);
+        DrawVirtualObject(name.c_str());
+    }
+}
+
+void DrawSecurityCamera(Player player)
+{
+    glm::mat4 model = Matrix_Identity();
+
+    glm::vec3 security_camera_position = glm::vec3(0.0f,3.0f,10.0f);
+    glm::vec3 security_camera_direction = glm::normalize(glm::vec3(player.getPosition().x, player.getPosition().y+CAMERA_HEIGHT, player.getPosition().z) - security_camera_position);
+    float sec_camera_theta = -std::atan2(security_camera_direction.x, -security_camera_direction.z);
+    float sec_camera_phi = std::atan2(security_camera_direction.y, glm::length(glm::vec2(security_camera_direction.x, security_camera_direction.z)));
+
+    model = 
+            Matrix_Translate(security_camera_position.x,security_camera_position.y,security_camera_position.z)
+          * Matrix_Translate(0.0f,0.1f,-0.15f)
+          * Matrix_Rotate_Y(sec_camera_theta)
+          * Matrix_Rotate_X(sec_camera_phi)
+          * Matrix_Translate(0.0f,-0.1f,0.15f)
+          * Matrix_Rotate_Y(M_PI)
+          * Matrix_Scale(1.0f,1.0f,1.0f);
+    glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+    glUniform1i(g_object_id_uniform, CAMERA);
+    DrawVirtualObject("security_camera_02");
+
+    model = 
+            Matrix_Translate(security_camera_position.x,security_camera_position.y,security_camera_position.z)
+          * Matrix_Rotate_Y(M_PI)
+          * Matrix_Scale(1.0f,1.0f,1.0f);
+    glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+    glUniform1i(g_object_id_uniform, CAMERA);
+    DrawVirtualObject("security_camera_02_mount");
+}
+
 void DrawBuilding()
 {
     glm::mat4 model = Matrix_Identity();
@@ -496,98 +498,98 @@ void DrawBuilding()
     //ceiling
     model = 
             Matrix_Translate(0.0f,4.0f,0.0f)
-          * Matrix_Rotate_Z(M_PI)
-          * Matrix_Scale(10.0f, 1.0f, 10.0f);
-    glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-    glUniform1i(g_object_id_uniform, CEILING);
-    DrawVirtualObject("the_plane");
-    
-    //floor
-    model = Matrix_Scale(10.0f, 1.0f, 10.0f)
-          * Matrix_Translate(0.0f,0.0f,0.0f);
-    glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-    glUniform1i(g_object_id_uniform, PLANE);
-    DrawVirtualObject("the_plane");
+              * Matrix_Rotate_Z(M_PI)
+              * Matrix_Scale(10.0f, 1.0f, 10.0f);
+        glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        glUniform1i(g_object_id_uniform, CEILING);
+        DrawVirtualObject("the_plane");
+        
+        //floor
+        model = Matrix_Scale(10.0f, 1.0f, 10.0f)
+              * Matrix_Translate(0.0f,0.0f,0.0f);
+        glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        glUniform1i(g_object_id_uniform, PLANE);
+        DrawVirtualObject("the_plane");
 
-    //wall
-    model = 
-            Matrix_Rotate_Y(3*M_PI_2)
-          * Matrix_Translate(10.0f,2.0f,0.0f)
-          * Matrix_Rotate_Z(M_PI_2)
-          * Matrix_Scale(2.0f, 1.0f, 10.0f);
-    glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-    glUniform1i(g_object_id_uniform, METAL_WALL);
-    DrawVirtualObject("the_plane");
+        //wall
+        model = 
+                Matrix_Rotate_Y(3*M_PI_2)
+              * Matrix_Translate(10.0f,2.0f,0.0f)
+              * Matrix_Rotate_Z(M_PI_2)
+              * Matrix_Scale(2.0f, 1.0f, 10.0f);
+        glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        glUniform1i(g_object_id_uniform, METAL_WALL);
+        DrawVirtualObject("the_plane");
 
-    ColisionObject parede1;
-    parede1.nome = "the_plane";
-    parede1.model =  Matrix_Rotate_Y(3*M_PI_2)
-          * Matrix_Translate(10.0f,2.0f,0.0f)
-          * Matrix_Rotate_Z(M_PI_2)
-          * Matrix_Scale(2.0f, 1.0f, 10.0f);
-    parede1.bbox_min_local = g_VirtualScene["the_plane"].bbox_min;
-    parede1.bbox_max_local = g_VirtualScene["the_plane"].bbox_max;
-    parede1.tipo = METAL_WALL;
-    mapa.push_back(parede1);
+        ColisionObject parede1;
+        parede1.nome = "the_plane";
+        parede1.model =  Matrix_Rotate_Y(3*M_PI_2)
+              * Matrix_Translate(10.0f,2.0f,0.0f)
+              * Matrix_Rotate_Z(M_PI_2)
+              * Matrix_Scale(2.0f, 1.0f, 10.0f);
+        parede1.bbox_min_local = g_VirtualScene["the_plane"].bbox_min;
+        parede1.bbox_max_local = g_VirtualScene["the_plane"].bbox_max;
+        parede1.tipo = METAL_WALL;
+        mapa.push_back(parede1);
 
-    model = 
-            Matrix_Rotate_Y(2*M_PI_2)
-          * Matrix_Translate(10.0f,2.0f,0.0f)
-          * Matrix_Rotate_Z(M_PI_2)
-          * Matrix_Scale(2.0f, 1.0f, 10.0f);
-    glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-    glUniform1i(g_object_id_uniform, BRICK_WALL);
-    DrawVirtualObject("the_plane");
+        model = 
+                Matrix_Rotate_Y(2*M_PI_2)
+              * Matrix_Translate(10.0f,2.0f,0.0f)
+              * Matrix_Rotate_Z(M_PI_2)
+              * Matrix_Scale(2.0f, 1.0f, 10.0f);
+        glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        glUniform1i(g_object_id_uniform, BRICK_WALL);
+        DrawVirtualObject("the_plane");
 
-    ColisionObject parede2;
-    parede2.nome = "the_plane";
-    parede2.model =  Matrix_Rotate_Y(2*M_PI_2)
-          * Matrix_Translate(10.0f,2.0f,0.0f)
-          * Matrix_Rotate_Z(M_PI_2)
-          * Matrix_Scale(2.0f, 1.0f, 10.0f);
-    parede2.bbox_min_local = g_VirtualScene["the_plane"].bbox_min;
-    parede2.bbox_max_local = g_VirtualScene["the_plane"].bbox_max;
-    parede2.tipo = METAL_WALL;
-    mapa.push_back(parede2);
+        ColisionObject parede2;
+        parede2.nome = "the_plane";
+        parede2.model =  Matrix_Rotate_Y(2*M_PI_2)
+              * Matrix_Translate(10.0f,2.0f,0.0f)
+              * Matrix_Rotate_Z(M_PI_2)
+              * Matrix_Scale(2.0f, 1.0f, 10.0f);
+        parede2.bbox_min_local = g_VirtualScene["the_plane"].bbox_min;
+        parede2.bbox_max_local = g_VirtualScene["the_plane"].bbox_max;
+        parede2.tipo = METAL_WALL;
+        mapa.push_back(parede2);
 
-    model = 
-            Matrix_Rotate_Y(M_PI_2)
-          * Matrix_Translate(10.0f,2.0f,0.0f)
-          * Matrix_Rotate_Z(M_PI_2)
-          * Matrix_Scale(2.0f, 1.0f, 10.0f);
-    glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-    glUniform1i(g_object_id_uniform, BRICK_WALL);
-    DrawVirtualObject("the_plane");
+        model = 
+                Matrix_Rotate_Y(M_PI_2)
+              * Matrix_Translate(10.0f,2.0f,0.0f)
+              * Matrix_Rotate_Z(M_PI_2)
+              * Matrix_Scale(2.0f, 1.0f, 10.0f);
+        glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        glUniform1i(g_object_id_uniform, BRICK_WALL);
+        DrawVirtualObject("the_plane");
 
-    ColisionObject parede3;
-    parede3.nome = "the_plane";
-    parede3.model =  Matrix_Rotate_Y(M_PI_2)
-          * Matrix_Translate(10.0f,2.0f,0.0f)
-          * Matrix_Rotate_Z(M_PI_2)
-          * Matrix_Scale(2.0f, 1.0f, 10.0f);
-    parede3.bbox_min_local = g_VirtualScene["the_plane"].bbox_min;
-    parede3.bbox_max_local = g_VirtualScene["the_plane"].bbox_max;
-    parede3.tipo = METAL_WALL;
-    mapa.push_back(parede3);
+        ColisionObject parede3;
+        parede3.nome = "the_plane";
+        parede3.model =  Matrix_Rotate_Y(M_PI_2)
+              * Matrix_Translate(10.0f,2.0f,0.0f)
+              * Matrix_Rotate_Z(M_PI_2)
+              * Matrix_Scale(2.0f, 1.0f, 10.0f);
+        parede3.bbox_min_local = g_VirtualScene["the_plane"].bbox_min;
+        parede3.bbox_max_local = g_VirtualScene["the_plane"].bbox_max;
+        parede3.tipo = METAL_WALL;
+        mapa.push_back(parede3);
 
-    model = 
-            Matrix_Translate(10.0f,2.0f,0.0f)
-          * Matrix_Rotate_Z(M_PI_2)
-          * Matrix_Scale(2.0f, 1.0f, 10.0f);
-    glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-    glUniform1i(g_object_id_uniform, BRICK_WALL);
-    DrawVirtualObject("the_plane");
+        model = 
+                Matrix_Translate(10.0f,2.0f,0.0f)
+              * Matrix_Rotate_Z(M_PI_2)
+              * Matrix_Scale(2.0f, 1.0f, 10.0f);
+        glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        glUniform1i(g_object_id_uniform, BRICK_WALL);
+        DrawVirtualObject("the_plane");
 
-    ColisionObject parede4;
-    parede4.nome = "the_plane";
-    parede4.model =  Matrix_Rotate_Y(M_PI_2)
-          * Matrix_Translate(10.0f,2.0f,0.0f)
-          * Matrix_Rotate_Z(M_PI_2)
-          * Matrix_Scale(2.0f, 1.0f, 10.0f);
-    parede4.bbox_min_local = g_VirtualScene["the_plane"].bbox_min;
-    parede4.bbox_max_local = g_VirtualScene["the_plane"].bbox_max;
-    parede4.tipo = METAL_WALL;
-    mapa.push_back(parede4);
+        ColisionObject parede4;
+        parede4.nome = "the_plane";
+        parede4.model =  Matrix_Rotate_Y(M_PI_2)
+              * Matrix_Translate(10.0f,2.0f,0.0f)
+              * Matrix_Rotate_Z(M_PI_2)
+              * Matrix_Scale(2.0f, 1.0f, 10.0f);
+        parede4.bbox_min_local = g_VirtualScene["the_plane"].bbox_min;
+        parede4.bbox_max_local = g_VirtualScene["the_plane"].bbox_max;
+        parede4.tipo = METAL_WALL;
+        mapa.push_back(parede4);
 }
 
 void LoadTextureImage(const char* filename)
