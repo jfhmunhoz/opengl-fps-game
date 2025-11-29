@@ -469,7 +469,7 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         DrawBuilding();
         glm::vec3 spherePosition = glm::vec3(sphereX,sphereY+0.25f*cos(2*g_Seconds),sphereZ);
         DrawSphere(spherePosition, 0.2f);
-        if(colission.sphereSphereCollision(player.getPosition(), 0.5f,spherePosition, 0.4f)){
+        if(colission.sphereSphereCollision(player.getPosition(), 1.0f,spherePosition, 1.0f)){
             player.reload();
             spherePosition = sphereRandomPosition();
             sphereX = spherePosition.x;
