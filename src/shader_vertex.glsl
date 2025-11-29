@@ -111,7 +111,7 @@ void main()
     //spotlight_direction = vec4(0.0f,-0.2f,-1.0f,1.0f);
 
     //dfine angulo de abertura da fonte de luz
-    float spotilight_angle = radians(15.0);
+    float spotilight_angle = radians(30.0)/(1.0+0.1*length(camera_position-1.0f - source_position));
 
     //test if the point is inside light cone
     float cos_angle = cos(spotilight_angle);
