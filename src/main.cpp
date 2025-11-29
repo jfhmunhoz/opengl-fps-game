@@ -97,8 +97,6 @@ struct ColisionObject
     int tipo;
 };
 
-std::vector<ColisionObject> mapa; 
-
 std::map<std::string, SceneObject> g_VirtualScene;
 std::stack<glm::mat4>  g_MatrixStack;
 
@@ -478,6 +476,15 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
                 }
             }
         }
+        else{
+            float lineheight = TextRendering_LineHeight(window);
+            float charwidth = TextRendering_CharWidth(window);
+            LoadShadersFromFiles();
+            TextRendering_PrintString(window, "YOU DIED",-1.0f*charwidth, -0.5f*lineheight,2.0f);
+            TextRendering_PrintString(window, "Score: " + std::to_string(player.getScore()),-(1.0f*charwidth*0.5)/2, -(1.0f*lineheight*2.0f),1.5f);
+            TextRendering_PrintString(window, "Press 'N'", -(1.0f*charwidth*0.5)/2, -(1.0f*lineheight*4.5f), 1.5f);
+            TextRendering_PrintString(window, "to play again.", -(1.0f*charwidth*0.5)/2, -(1.0f*lineheight*6.0f), 1.5f);
+        }
         player.setCollision(checkWallCollisions(player.getNextPosition(g_ElapsedSeconds, g_Input), 1.0f));
 
         glUniform1i(g_player_dead_uniform, player.isAlive() ? 0 : 1);
@@ -509,7 +516,7 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
             DrawVirtualObject("gun");
         }
 
-        TextRendering_ShowEulerAngles(window);
+        // TextRendering_ShowEulerAngles(window);
         TextRendering_ShowProjection(window);
         TextRendering_ShowFramesPerSecond(window);
 
@@ -626,9 +633,6 @@ bool checkWallCollisions(glm::vec3 position, float radius)
     return false;
 }
 
-
-
-
 void DrawBuilding()
 {
     glm::mat4 model = Matrix_Identity();
@@ -659,17 +663,6 @@ void DrawBuilding()
         glUniform1i(g_object_id_uniform, METAL_WALL);
         DrawVirtualObject("the_plane");
 
-        ColisionObject parede1;
-        parede1.nome = "the_plane";
-        parede1.model =  Matrix_Rotate_Y(3*M_PI_2)
-              * Matrix_Translate(10.0f,2.0f,0.0f)
-              * Matrix_Rotate_Z(M_PI_2)
-              * Matrix_Scale(2.0f, 1.0f, 10.0f);
-        parede1.bbox_min_local = g_VirtualScene["the_plane"].bbox_min;
-        parede1.bbox_max_local = g_VirtualScene["the_plane"].bbox_max;
-        parede1.tipo = METAL_WALL;
-        mapa.push_back(parede1);
-
         model = 
                 Matrix_Rotate_Y(2*M_PI_2)
               * Matrix_Translate(10.0f,2.0f,0.0f)
@@ -678,17 +671,6 @@ void DrawBuilding()
         glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
         glUniform1i(g_object_id_uniform, BRICK_WALL);
         DrawVirtualObject("the_plane");
-
-        ColisionObject parede2;
-        parede2.nome = "the_plane";
-        parede2.model =  Matrix_Rotate_Y(2*M_PI_2)
-              * Matrix_Translate(10.0f,2.0f,0.0f)
-              * Matrix_Rotate_Z(M_PI_2)
-              * Matrix_Scale(2.0f, 1.0f, 10.0f);
-        parede2.bbox_min_local = g_VirtualScene["the_plane"].bbox_min;
-        parede2.bbox_max_local = g_VirtualScene["the_plane"].bbox_max;
-        parede2.tipo = METAL_WALL;
-        mapa.push_back(parede2);
 
         model = 
                 Matrix_Rotate_Y(M_PI_2)
@@ -699,17 +681,6 @@ void DrawBuilding()
         glUniform1i(g_object_id_uniform, BRICK_WALL);
         DrawVirtualObject("the_plane");
 
-        ColisionObject parede3;
-        parede3.nome = "the_plane";
-        parede3.model =  Matrix_Rotate_Y(M_PI_2)
-              * Matrix_Translate(10.0f,2.0f,0.0f)
-              * Matrix_Rotate_Z(M_PI_2)
-              * Matrix_Scale(2.0f, 1.0f, 10.0f);
-        parede3.bbox_min_local = g_VirtualScene["the_plane"].bbox_min;
-        parede3.bbox_max_local = g_VirtualScene["the_plane"].bbox_max;
-        parede3.tipo = METAL_WALL;
-        mapa.push_back(parede3);
-
         model = 
                 Matrix_Translate(10.0f,2.0f,0.0f)
               * Matrix_Rotate_Z(M_PI_2)
@@ -718,16 +689,6 @@ void DrawBuilding()
         glUniform1i(g_object_id_uniform, BRICK_WALL);
         DrawVirtualObject("the_plane");
 
-        ColisionObject parede4;
-        parede4.nome = "the_plane";
-        parede4.model =  Matrix_Rotate_Y(M_PI_2)
-              * Matrix_Translate(10.0f,2.0f,0.0f)
-              * Matrix_Rotate_Z(M_PI_2)
-              * Matrix_Scale(2.0f, 1.0f, 10.0f);
-        parede4.bbox_min_local = g_VirtualScene["the_plane"].bbox_min;
-        parede4.bbox_max_local = g_VirtualScene["the_plane"].bbox_max;
-        parede4.tipo = METAL_WALL;
-        mapa.push_back(parede4);
 }
 
 void LoadTextureImage(const char* filename)
@@ -1423,13 +1384,15 @@ void TextRendering_ShowProjection(GLFWwindow* window)
 
     float lineheight = TextRendering_LineHeight(window);
     float charwidth = TextRendering_CharWidth(window);
-    TextRendering_PrintString(window, "Score: " + std::to_string(player.getScore()), -1.0f+2.0f*charwidth, 1.0f-2.0f*lineheight, 2.0f);
-    TextRendering_PrintString(window, (std::to_string(player.getAmmo())+"/"+std::to_string(player.getMaxAmmo())), 1.0f-16*charwidth, -1.0f+2*lineheight/10, 4.0f);
-    //Mira1 tela
-    //TextRendering_PrintString(window,".", -1.0f*charwidth, -0.5f*lineheight, 1.5f);
-    //Mira2 tela
-    TextRendering_PrintString(window, "- -", -(3.0f*charwidth*0.5)/2, 0.0f, 0.5f);
-    TextRendering_PrintString(window, "'", -(1.0f*charwidth*0.5)/2, -(1.0f*lineheight*0.5), 0.5f);
+    if(player.isAlive()){
+        TextRendering_PrintString(window, "Score: " + std::to_string(player.getScore()), -1.0f+2.0f*charwidth, 1.0f-2.0f*lineheight, 2.0f);
+        TextRendering_PrintString(window, (std::to_string(player.getAmmo())+"/"+std::to_string(player.getMaxAmmo())), 1.0f-16*charwidth, -1.0f+2*lineheight/10, 4.0f);
+        //Mira1 tela
+        //TextRendering_PrintString(window,".", -1.0f*charwidth, -0.5f*lineheight, 1.5f);
+        //Mira2 tela
+        TextRendering_PrintString(window, "- -", -(3.0f*charwidth*0.5)/2, 0.0f, 0.5f);
+        TextRendering_PrintString(window, "'", -(1.0f*charwidth*0.5)/2, -(1.0f*lineheight*0.5), 0.5f);
+    }
 
     //Hit
     if(hit){
@@ -1439,12 +1402,12 @@ void TextRendering_ShowProjection(GLFWwindow* window)
         TextRendering_PrintString(window, " ", 1.0f*charwidth, -1.5f*lineheight, 1.5f);
     }
 
-    if ( g_UsePerspectiveProjection )
-
-    if ( g_UsePerspectiveProjection )
-        TextRendering_PrintString(window, "Perspective", 1.0f-4*13*charwidth, -1.0f+2*lineheight/10, 1.0f);
-    else
-        TextRendering_PrintString(window, "Orthographic", 1.0f-13*charwidth, -1.0f+2*lineheight/10, 1.0f);
+    if(player.isAlive()){
+        if ( g_UsePerspectiveProjection )
+            TextRendering_PrintString(window, "Perspective", 1.0f-4*13*charwidth, -1.0f+2*lineheight/10, 1.0f);
+        else
+            TextRendering_PrintString(window, "Orthographic", 1.0f-4*13*charwidth, -1.0f+2*lineheight/10, 1.0f);
+    }
 }
 
 
