@@ -65,15 +65,14 @@ void main()
     
 
     //define posicao da fonte de luz
-    vec4 source_position = camera_position;
-    source_position = vec4(0.0f, 2.0f, 10.0f,1.0f);
+    vec4 source_position = vec4(0.0f, 1.9f, 9.9f,1.0f);
 
     //define direcao da spotilight
-    vec4 spotlight_direction = camera_position;
-    spotlight_direction = vec4(0.0f,-0.2f,-1.0f,1.0f);
+    vec4 spotlight_direction = normalize(camera_position-1.0f - source_position);
+    //spotlight_direction = vec4(0.0f,-0.2f,-1.0f,1.0f);
 
     //dfine angulo de abertura da fonte de luz
-    float spotilight_angle = radians(20.0);
+    float spotilight_angle = radians(15.0);
 
     //test if the point is inside light cone
     float cos_angle = cos(spotilight_angle);
@@ -185,12 +184,24 @@ void main()
         color.rgb = lambert_diffuse_term + ambient_term + phong_specular_term;
     }
 
-    color.a = 1;
-    color.rgb = pow(color.rgb, vec3(1.0,1.0,1.0)/2.2);
-
     //deixar o pingu mais cartoonizado
     if(object_id == PENGUIN && dot(v,n)<=0.3)
         color.rgb = vec3(0.0,0.0,0.0);
 
+    color.a = 1;
+    color.rgb = pow(color.rgb, vec3(1.0,1.0,1.0)/2.2);
+
+
+    //Rainbow
+    //vec4 light_to_point = normalize(p - source_position);
+    //color.rgb = light_to_point. xyz * 0.5 + 0.5;
+
+    //Dark
+    //float dist = length(p - source_position);
+    //color.rgb = vec3(dist / 100.0);  // Scale to see it
+
+    //Cool white effect
+    //float NdotL = dot(n, l);
+    //color. rgb = vec3(NdotL); // Will show black where NdotL <= 0
 } 
 
