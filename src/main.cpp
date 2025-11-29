@@ -17,6 +17,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <tiny_obj_loader.h>
 #include <stb_image.h>
+#include "Player.hpp"
 #include "utils.h"
 #include "matrices.h"
 #include "Player.cpp"
@@ -184,6 +185,7 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
     LoadTextureImage("../../data/street_rat/textures/street_rat_diff_4k.jpg");
     LoadTextureImage("../../data/robot2/Chopper_BaseColor.png");
     LoadTextureImage("../../data/penguin/Penguin_Albedo.png");
+    LoadTextureImage("../../data/camera/textures/security_camera_02_diff_4k.jpg");
 
     ObjModel spheremodel("../../data/sphere.obj");
     ComputeNormals(&spheremodel);
@@ -204,6 +206,15 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
     std::vector<std::string> robot_part_names;
     for (const auto& shape : robotmodel.shapes) {
         robot_part_names.push_back(shape.name);
+    }
+
+    ObjModel cameramodel("../../data/camera/security_camera_02_4k.obj");
+    ComputeNormals(&cameramodel);
+    BuildTrianglesAndAddToVirtualScene(&cameramodel);
+    //next 4 lines given by GPT-4.1
+    std::vector<std::string> camera_part_names;
+    for (const auto& shape : cameramodel.shapes) {
+        camera_part_names.push_back(shape.name);
     }
 
     ObjModel robot2model("../../data/robot2/robot.obj");
@@ -311,6 +322,7 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         #define RAT 7
         #define ROBOT2 8
         #define PENGUIN 9
+        #define CAMERA 10
 
         // glm::vec3 alvo_direction = glm::vec3((g_CameraX - g_alvoX), 0.0f, (g_CameraZ - g_alvoZ));
         glm::vec3 alvo_direction = glm::vec3((g_alvoX), 0.0f, (g_alvoZ));
@@ -338,6 +350,32 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
             glUniform1i(glGetUniformLocation(g_GpuProgramID, "material_id"), matid);
             DrawVirtualObject(name.c_str());
         }
+
+        //camera
+        glm::vec3 security_camera_position = glm::vec3(0.0f,3.0f,10.0f);
+        glm::vec3 security_camera_direction = glm::normalize(glm::vec3(player.getPosition().x, player.getPosition().y+CAMERA_HEIGHT, player.getPosition().z) - security_camera_position);
+        float sec_camera_theta = -std::atan2(security_camera_direction.x, -security_camera_direction.z);
+        float sec_camera_phi = std::atan2(security_camera_direction.y, glm::length(glm::vec2(security_camera_direction.x, security_camera_direction.z)));
+
+        model = 
+                Matrix_Translate(security_camera_position.x,security_camera_position.y,security_camera_position.z)
+              * Matrix_Translate(0.0f,0.1f,-0.15f)
+              * Matrix_Rotate_Y(sec_camera_theta)
+              * Matrix_Rotate_X(sec_camera_phi)
+              * Matrix_Translate(0.0f,-0.1f,0.15f)
+              * Matrix_Rotate_Y(M_PI)
+              * Matrix_Scale(1.0f,1.0f,1.0f);
+        glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        glUniform1i(g_object_id_uniform, CAMERA);
+        DrawVirtualObject("security_camera_02");
+
+        model = 
+                Matrix_Translate(security_camera_position.x,security_camera_position.y,security_camera_position.z)
+              * Matrix_Rotate_Y(M_PI)
+              * Matrix_Scale(1.0f,1.0f,1.0f);
+        glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        glUniform1i(g_object_id_uniform, CAMERA);
+        DrawVirtualObject("security_camera_02_mount");
 
         glm::vec4 p1 = glm::vec4(-10.0f, 0.0f, -10.0f, 1.0f);
         glm::vec4 p2 = glm::vec4(-10.0f, 0.0f, 10.0f, 1.0f);
@@ -592,6 +630,7 @@ void LoadShadersFromFiles()
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage4"), 4);
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage5"), 5);
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage6"), 6);
+    glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage7"), 7);
     glUseProgram(0);
 }
 

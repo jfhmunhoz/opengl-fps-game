@@ -65,7 +65,7 @@ void main()
     
 
     //define posicao da fonte de luz
-    vec4 source_position = vec4(0.0f, 1.9f, 9.9f,1.0f);
+    vec4 source_position = vec4(0.0f, 3.1f, 9.9f,1.0f);
 
     //define direcao da spotilight
     vec4 spotlight_direction = normalize(camera_position-1.0f - source_position);

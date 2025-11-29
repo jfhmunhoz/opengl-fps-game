@@ -32,6 +32,7 @@ out vec3 gouraud_shading;
 #define RAT 7
 #define ROBOT2 8
 #define PENGUIN 9
+#define CAMERA 10
 // Constantes
 #define M_PI   3.14159265358979323846
 #define M_PI_2 1.57079632679489661923
@@ -48,6 +49,7 @@ uniform sampler2D TextureImage3;
 uniform sampler2D TextureImage4;
 uniform sampler2D TextureImage5;
 uniform sampler2D TextureImage6;
+uniform sampler2D TextureImage7;
 //Id do material do objeto
 uniform int material_id;
 uniform vec4 player_view;
@@ -196,6 +198,13 @@ void main()
         U = texcoords.x;
         V = texcoords.y;
         Kd = texture(TextureImage5, vec2(U,V)).rgb;
+        Ka = 0.5*Kd;
+    }
+    else if ( object_id == CAMERA )
+    {
+        U = texcoords.x;
+        V = texcoords.y;
+        Kd = texture(TextureImage7, vec2(U,V)).rgb;
         Ka = 0.5*Kd;
     }
     else
