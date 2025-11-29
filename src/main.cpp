@@ -118,6 +118,8 @@ float sphereX = 0.0f;
 float sphereY = 0.5f;
 float sphereZ = 0.0f;
 glm::vec3 sphereRandomPosition();
+float orbBuffStart = 0.0f;
+float orbBuffDuration = 3.0f;
 
 //
 bool hit = false;
@@ -462,7 +464,8 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
                         DrawVirtualObject("gun");
             }
         }
-
+        
+        //orb
         DrawBuilding();
         glm::vec3 spherePosition = glm::vec3(sphereX,sphereY+0.25f*cos(2*g_Seconds),sphereZ);
         DrawSphere(spherePosition, 0.2f);
@@ -471,7 +474,13 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
             spherePosition = sphereRandomPosition();
             sphereX = spherePosition.x;
             sphereZ = spherePosition.z;
+            player.setBoost(true);
+            orbBuffStart = (float)glfwGetTime();
         }
+        if((float)glfwGetTime() - orbBuffStart >= orbBuffDuration){
+            player.setBoost(false);
+        }
+
         
         //player
         if (player.isAlive())
@@ -1459,7 +1468,6 @@ void TextRendering_ShowFramesPerSecond(GLFWwindow* window)
 
     TextRendering_PrintString(window, buffer, 1.0f-(numchars + 1)*charwidth, 1.0f-lineheight, 1.0f);
 }
-
 
 
 

@@ -2,7 +2,7 @@
 #include "collisions.hpp"
 
 Player::Player()
-    : posX(0.0f), posY(0.0f), posZ(0.0f), nroBalas(6), pontuacao(0), maxAmmo(6), velocity(PLAYER_VELOCITY), collision(false), alive(true)
+    : posX(0.0f), posY(0.0f), posZ(0.0f), nroBalas(6), pontuacao(0), maxAmmo(6), velocity(PLAYER_VELOCITY), collision(false), alive(true),boost(false)
 {
     Camera camera;
 }
@@ -41,8 +41,12 @@ glm::vec3 Player::getNextPosition(float deltaTime, input_t input)
 
     if(input.aiming)
         vel = SLOWED_VELOCITY;
-    else
+    else if(boost){
+        vel = PLAYER_VELOCITY +2.0f;
+    }
+    else{
         vel = velocity;
+    }
 
     float x = viewRadius*cos(viewPhi)*sin(viewTheta);
     float y = viewRadius*sin(viewPhi);
@@ -152,6 +156,11 @@ void Player::setCollision(bool collided)
 {
     collision = collided;
 }
+
+void Player::setBoost(bool b){
+    boost = b;
+}
+
 void Player::resetPoints()
 {
     pontuacao = 0;
@@ -160,6 +169,10 @@ void Player::resetPoints()
 void Player::addPoints()
 {
     pontuacao++;
+}
+
+float Player::getSpeed(){
+    return boost*1;
 }
 
 void Player::reset()

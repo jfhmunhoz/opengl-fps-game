@@ -4,8 +4,8 @@
 #include "Camera.hpp"
 #include <glm/glm.hpp>
 
-#define PLAYER_VELOCITY 5.0f
-#define SLOWED_VELOCITY 2.0f
+#define PLAYER_VELOCITY 2.0f
+#define SLOWED_VELOCITY 1.0f
 #define CAMERA_HEIGHT 2.0f
 
 typedef struct input
@@ -40,6 +40,9 @@ public:
     void setViewDirection(float theta, float phi);
     void setCollision(bool collided);
 
+    void setBoost(bool b);
+    float getSpeed();
+
     void shoot(float time);
     void reload();
     void addScore(int points);
@@ -51,6 +54,7 @@ public:
     
 private:
     bool alive = true;
+
     // Posicao player
     float posX = 0.0f;
     float posY = 0.0f;
@@ -66,6 +70,7 @@ private:
     int nroBalas;
     int pontuacao;
     int maxAmmo;
+    bool boost;
     float prevShotTime = 0;
     bool shooting = false;
     
