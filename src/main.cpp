@@ -107,7 +107,9 @@ CollisionManager colission;
 std::vector<Enemy> enemies;
 float g_LastSpawnTime = 0.0f;
 float g_SpawnInterval = 5.0f;
-int g_MaxEnemies = 10;
+float g_EnemySpeed = 2.0f;
+int g_MaxEnemies = 2;
+int g_CurrentEnemies = 0;
 void spawnEnemy();
 glm::vec3 getRandomSpawnPosition();
 
@@ -136,6 +138,7 @@ GLint g_projection_uniform;
 GLint g_object_id_uniform;
 GLint g_bbox_min_uniform;
 GLint g_bbox_max_uniform;
+GLint g_player_dead_uniform;
 
 GLuint g_NumLoadedTextures = 0;
 
@@ -303,11 +306,14 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
                 {
                     if (enemy.isAlive())
                     {
-                        glm::vec3 alvoPos = glm::vec3(enemy.getPosition(). x, enemy.getPosition().y + 0.5f, enemy.getPosition().z);
-                        if(colission. rayToSphere(camPos, CamToAlvo, alvoPos, 0.4f)){
+                        glm::vec3 alvoPos = glm::vec3(enemy.getPosition(). x, enemy.getPosition().y + 1.2f, enemy.getPosition().z);
+                        if(colission.rayToSphere(camPos, CamToAlvo, alvoPos, 1.0f))
+                        {
                             hit = true;
                             player.addScore(1);
                             enemy.die();
+                            g_SpawnInterval *= 0.9f;
+                            g_EnemySpeed *= 1.1f;
                             break;
                         }
                     }
@@ -318,6 +324,7 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         else{
             hit = false;
         }
+        enemies.erase(std::remove_if(enemies.begin(), enemies.end(), [](const Enemy& e) { return ! e.isAlive(); }),enemies.end());
 
         //Mira 
         if(g_RightMouseButtonPressed){
@@ -366,7 +373,8 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         {
             if (enemy.isAlive())
             {
-                enemy.update(g_ElapsedSeconds, player.getPosition());
+                if(player.isAlive())
+                    enemy.update(g_ElapsedSeconds, player.getPosition());
                 DrawEnemy(enemy, robot_part_names);
             }
         }
@@ -427,14 +435,25 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
             }
         }
 
-        model = Matrix_Scale(100.0f, 1.0f, 100.0f)
-              * Matrix_Translate(0.0f,-1.1f,0.0f);
-        glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(g_object_id_uniform, PLANE);
-        //DrawVirtualObject("the_plane");
         DrawBuilding();
         
         //player
+        if (player.isAlive())
+        {
+            for (auto& enemy : enemies)
+            {
+                if (enemy.isAlive())
+                {
+                    if (CollisionManager::sphereSphereCollision(player.getPosition(), 0.5f, enemy.getPosition(), 0.4f))
+                    {
+                        player.dead();
+                        break;
+                    }
+                }
+            }
+        }
+        glUniform1i(g_player_dead_uniform, player.isAlive() ? 0 : 1);
+
         glUniform4fv(glGetUniformLocation(g_GpuProgramID, "player_view"), 1, glm::value_ptr(glm::normalize(player.getViewVector())));
         if(camera.isLookAt())
         {
@@ -491,8 +510,7 @@ glm::vec3 getRandomSpawnPosition()
 void spawnEnemy()
 {
     glm::vec3 spawnPos = getRandomSpawnPosition();
-    float speed = 1.5f + static_cast<float>(rand() % 100) / 100.0f;
-    enemies.emplace_back(spawnPos, player.getPosition(), speed);
+    enemies.emplace_back(spawnPos, player.getPosition(), g_EnemySpeed);
 }
 
 
@@ -732,6 +750,7 @@ void LoadShadersFromFiles()
     g_object_id_uniform  = glGetUniformLocation(g_GpuProgramID, "object_id");
     g_bbox_min_uniform   = glGetUniformLocation(g_GpuProgramID, "bbox_min");
     g_bbox_max_uniform   = glGetUniformLocation(g_GpuProgramID, "bbox_max");
+    g_player_dead_uniform = glGetUniformLocation(g_GpuProgramID, "player_dead");
 
     glUseProgram(g_GpuProgramID);
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage0"), 0);

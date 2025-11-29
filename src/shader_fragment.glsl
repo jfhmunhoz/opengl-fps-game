@@ -44,6 +44,7 @@ out vec4 color;
 //Id do material do objeto
 uniform int material_id;
 uniform vec4 player_view;
+uniform int player_dead;
 
 // Constantes
 #define M_PI   3.14159265358979323846
@@ -198,10 +199,12 @@ void main()
 
     //Dark
     //float dist = length(p - source_position);
-    //color.rgb = vec3(dist / 100.0);  // Scale to see it
+    //color.rgb = vec3(dist / 100.0);
 
     //Cool white effect
-    //float NdotL = dot(n, l);
-    //color. rgb = vec3(NdotL); // Will show black where NdotL <= 0
+    if (player_dead == 1) {
+        float NdotL = dot(n, l);
+        color. rgb = vec3(NdotL);
+    }
 } 
 

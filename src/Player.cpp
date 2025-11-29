@@ -2,9 +2,19 @@
 #include "collisions.hpp"
 
 Player::Player()
-    : posX(0.0f), posY(2.0f), posZ(0.0f), nroBalas(6), pontuacao(0), maxAmmo(6), velocity(PLAYER_VELOCITY), collision(false)
+    : posX(0.0f), posY(2.0f), posZ(0.0f), nroBalas(6), pontuacao(0), maxAmmo(6), velocity(PLAYER_VELOCITY), collision(false), alive(true)
 {
     Camera camera;
+}
+
+void Player::dead()
+{
+    alive = false;
+}
+
+bool Player::isAlive()
+{
+    return alive;
 }
 
 void Player::setPosition(float x, float y, float z)
@@ -56,7 +66,7 @@ glm::vec3 Player::getNextPosition(float deltaTime, input_t input)
 
 void Player::update(float deltaTime, input_t input)
 {
-    if(!collision)
+    if(!collision && alive)
     {
         glm::vec3 nextPos = getNextPosition(deltaTime, input);
         posX = nextPos.x;
@@ -66,7 +76,7 @@ void Player::update(float deltaTime, input_t input)
 
     setViewDirection(input.theta, input.phi);
 
-    camera.setCamera(posX, posY+CAMERA_HEIGHT, posZ, viewTheta, viewPhi, input.lookat);
+    camera.setCamera(posX, posY+CAMERA_HEIGHT, posZ, viewTheta, viewPhi, (input.lookat || !alive));
 }
 
 

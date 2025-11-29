@@ -34,6 +34,7 @@ public:
     int getScore() const;
     int getMaxAmmo() const;
     glm::vec3 getNextPosition(float deltaTime, input_t input);
+    bool isAlive();
 
     void setPosition(float x, float y, float z);
     void setViewDirection(float theta, float phi);
@@ -43,10 +44,12 @@ public:
     void reload();
     void addScore(int points);
     float gunAnimation(float time);
+    void dead();
 
     Camera& getCamera();
     
 private:
+    bool alive = true;
     // Posicao player
     float posX = 0.0f;
     float posY = 0.0f;
