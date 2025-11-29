@@ -113,6 +113,12 @@ int g_CurrentEnemies = 0;
 void spawnEnemy();
 glm::vec3 getRandomSpawnPosition();
 
+//Orb
+float sphereX = 0.0f;
+float sphereY = 0.5f;
+float sphereZ = 0.0f;
+glm::vec3 sphereRandomPosition();
+
 //
 bool hit = false;
 float g_ScreenRatio = 1.0f;
@@ -413,6 +419,7 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         glm::vec4 enemy2 = cubicBezier(p1, p2, p3, p4, tBezier);
         glm::vec4 enemy2view = cubicBezier(p1, p2, p3, p4, tBezier+0.01f) - enemy2;
         float enemy2_angle = -std::atan2(-enemy2view.x, enemy2view.z);
+
         //rat
         model = 
               Matrix_Translate(enemy2.x, enemy2.y, enemy2.z)
@@ -421,7 +428,6 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
         glUniform1i(g_object_id_uniform, RAT);
         DrawVirtualObject("street_rat");
-
 
         //gun
         float gun_animation = player.gunAnimation(g_Seconds);
@@ -458,9 +464,15 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         }
 
         DrawBuilding();
-        
-        glm::vec3 spherePosition = glm::vec3(0.0f,0.5f+0.25f*cos(2*g_Seconds),0.0f);
+        glm::vec3 spherePosition = glm::vec3(sphereX,sphereY+0.25f*cos(2*g_Seconds),sphereZ);
         DrawSphere(spherePosition, 0.2f);
+        if(colission.sphereSphereCollision(player.getPosition(), 0.5f,spherePosition, 0.4f)){
+            player.reload();
+            spherePosition = sphereRandomPosition();
+            sphereX = spherePosition.x;
+            sphereZ = spherePosition.z;
+        }
+        
         //player
         if (player.isAlive())
         {
@@ -549,6 +561,12 @@ void spawnEnemy()
     enemies.emplace_back(spawnPos, player.getPosition(), g_EnemySpeed);
 }
 
+glm::vec3 sphereRandomPosition()
+{
+    float randomX = static_cast<float>(rand() % 8);
+    float randomZ = static_cast<float>(rand() % 8);
+    return glm::vec3(randomX,0.0f,randomZ);
+}
 
 
 void DrawEnemy(Enemy enemy, std::vector<std::string> robot_part_names)
@@ -1255,7 +1273,7 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
     }
     if (key == GLFW_KEY_R && action == GLFW_PRESS)
     {
-        player.reload();
+        //player.reload();
     }
     if (key == GLFW_KEY_N && action == GLFW_RELEASE)
     {
