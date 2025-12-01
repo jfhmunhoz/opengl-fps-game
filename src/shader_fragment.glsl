@@ -168,8 +168,8 @@ void main()
     }
     else
     {
-        vec3 I = vec3(0.4,0.4,0.4);
-        float intensity = 5.0;
+        vec3 I = 0.5*vec3(0.4,0.4,0.4);
+        float intensity = 10.0;
         if(inside_cone)
             I += intensity*(vec3(1.0,0.0,0.0)/length(p - source_position));
         vec3 Ia = 0.005*vec3(1.0,1.0,1.0);
