@@ -157,6 +157,7 @@ float g_ElapsedSeconds;
 float g_LastResetTime = 0.0f;
 
 bool g_Reset = false;
+bool g_SpawnOn = false;
 
 
 input_t g_Input;
@@ -394,7 +395,7 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         #define CAMERA 10
 
         //enemy
-        if (g_Seconds - g_LastSpawnTime > g_SpawnInterval && static_cast<int>(enemies.size()) < g_MaxEnemies)
+        if (g_Seconds - g_LastSpawnTime > g_SpawnInterval && static_cast<int>(enemies.size()) < g_MaxEnemies && g_SpawnOn)
         {
             spawnEnemy();
             g_LastSpawnTime = g_Seconds;
@@ -1287,6 +1288,14 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
     if (key == GLFW_KEY_N && action == GLFW_RELEASE)
     {
         g_Reset = true;
+    }
+    if (key == GLFW_KEY_K && action == GLFW_RELEASE)
+    {
+        g_SpawnOn = true;
+    }
+    if (key == GLFW_KEY_J && action == GLFW_RELEASE)
+    {
+        g_SpawnOn = false;
     }
 
     if (key == GLFW_KEY_W)
