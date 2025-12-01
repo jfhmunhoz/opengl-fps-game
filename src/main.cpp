@@ -498,15 +498,6 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
                 }
             }
         }
-        else{
-            float lineheight = TextRendering_LineHeight(window);
-            float charwidth = TextRendering_CharWidth(window);
-            LoadShadersFromFiles();
-            TextRendering_PrintString(window, "YOU DIED",-1.0f*charwidth, -0.5f*lineheight,2.0f);
-            TextRendering_PrintString(window, "Score: " + std::to_string(player.getScore()),-(1.0f*charwidth*0.5)/2, -(1.0f*lineheight*2.0f),1.5f);
-            TextRendering_PrintString(window, "Press 'N'", -(1.0f*charwidth*0.5)/2, -(1.0f*lineheight*4.5f), 1.5f);
-            TextRendering_PrintString(window, "to play again.", -(1.0f*charwidth*0.5)/2, -(1.0f*lineheight*6.0f), 1.5f);
-        }
         player.setCollision(checkWallCollisions(player.getNextPosition(g_ElapsedSeconds, g_Input), 1.0f));
 
         glUniform1i(g_player_dead_uniform, player.isAlive() ? 0 : 1);
@@ -1428,6 +1419,14 @@ void TextRendering_ShowProjection(GLFWwindow* window)
         //Mira2 tela
         TextRendering_PrintString(window, "- -", -(3.0f*charwidth*0.5)/2, 0.0f, 0.5f);
         TextRendering_PrintString(window, "'", -(1.0f*charwidth*0.5)/2, -(1.0f*lineheight*0.5), 0.5f);
+    }
+    else{
+        float lineheight = TextRendering_LineHeight(window);
+        float charwidth = TextRendering_CharWidth(window);
+        TextRendering_PrintString(window, "YOU DIED",-1.0f*charwidth, -0.5f*lineheight,2.0f);
+        TextRendering_PrintString(window, "Score: " + std::to_string(player.getScore()),-(1.0f*charwidth*0.5)/2, -(1.0f*lineheight*2.0f),1.5f);
+        TextRendering_PrintString(window, "Press 'N'", -(1.0f*charwidth*0.5)/2, -(1.0f*lineheight*4.5f), 1.5f);
+        TextRendering_PrintString(window, "to play again.", -(1.0f*charwidth*0.5)/2, -(1.0f*lineheight*6.0f), 1.5f);
     }
 
     //Hit
