@@ -228,7 +228,7 @@ void main()
 
     if ( object_id == SPHERE )
     {
-        vec3 surface_dir = normalize(p.xyz);
+        vec3 surface_dir = normalize(n.xyz);
         
         // Multiple overlapping waves for trippy effect
         float t = time * 0.5;
