@@ -33,6 +33,8 @@
 #define M_PI   3.14159265358979323846
 #define M_PI_2 1.57079632679489661923
 #define BEZIER_INTERVAL 2.0f
+#define FPS60 1
+#define FPS30 2
 
 void PushMatrix(glm::mat4 M);
 void PopMatrix(glm::mat4& M);
@@ -157,7 +159,7 @@ float g_ElapsedSeconds;
 float g_LastResetTime = 0.0f;
 
 bool g_Reset = false;
-bool g_SpawnOn = false;
+bool g_SpawnOn = true;
 
 
 input_t g_Input;
@@ -197,7 +199,7 @@ glfwSetScrollCallback(window, ScrollCallback);
 glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 glfwMakeContextCurrent(window);
-glfwSwapInterval(2);
+glfwSwapInterval(FPS60);
 
 gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
 
@@ -343,8 +345,8 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
                             hit = true;
                             player.addScore(1);
                             enemy.die();
-                            g_SpawnInterval *= 0.9f;
-                            g_EnemySpeed *= 1.01f;
+                            g_SpawnInterval *= 0.8f;
+                            g_EnemySpeed *= 1.05f;
                             break;
                         }
                     }
@@ -418,14 +420,14 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         glm::vec4 p4 = glm::vec4(10.0f, 0.0f, 10.0f, 1.0f);
 
         float tBezier = std::fmod(g_Seconds, BEZIER_INTERVAL)/BEZIER_INTERVAL;
-        glm::vec4 enemy2 = cubicBezier(p1, p2, p3, p4, tBezier);
-        glm::vec4 enemy2view = cubicBezier(p1, p2, p3, p4, tBezier+0.01f) - enemy2;
-        float enemy2_angle = -std::atan2(-enemy2view.x, enemy2view.z);
+        glm::vec4 rat = cubicBezier(p1, p2, p3, p4, tBezier);
+        glm::vec4 ratview = cubicBezier(p1, p2, p3, p4, tBezier+0.01f) - rat;
+        float rat_angle = -std::atan2(-ratview.x, ratview.z);
 
         //rat
         model = 
-              Matrix_Translate(enemy2.x, enemy2.y, enemy2.z)
-              * Matrix_Rotate_Y(enemy2_angle)
+              Matrix_Translate(rat.x, rat.y, rat.z)
+              * Matrix_Rotate_Y(rat_angle)
               * Matrix_Scale(7.0f,7.0f,7.0f);
         glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
         glUniform1i(g_object_id_uniform, RAT);
@@ -542,16 +544,30 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
     return 0;
 }
 
+glm::vec3 getRandomRatBezierPosition()
+{
+    float random = static_cast<float>(rand() % 4);
+    float random_spot = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * 10.0f;
+    
+    switch(static_cast<int>(random)) {
+        case 0: return glm::vec3(10.0f,0.0f,random_spot);
+        case 1: return glm::vec3(-10.0f,0.0f,random_spot);
+        case 2: return glm::vec3(random_spot,0.0f,10.0f);
+        case 3: return glm::vec3(random_spot,0.0f,-10.0f);
+        default: return glm::vec3(10.0f,0.0f,10.0f);
+    }
+}
+
 glm::vec3 getRandomSpawnPosition()
 {
     float random = static_cast<float>(rand() % 4);
     
     switch(static_cast<int>(random)) {
-        case 0: return glm::vec3(9.0f,0.0f,9.0f);
-        case 1: return glm::vec3(-9.0f,0.0f,9.0f);
-        case 2: return glm::vec3(9.0f,0.0f,-9.0f);
-        case 3: return glm::vec3(-9.0f,0.0f,-9.0f);
-        default: return glm::vec3(9.0f,0.0f,9.0f);
+        case 0: return glm::vec3(9.8f,0.0f,9.8f);
+        case 1: return glm::vec3(-9.8f,0.0f,9.8f);
+        case 2: return glm::vec3(9.8f,0.0f,-9.8f);
+        case 3: return glm::vec3(-9.8f,0.0f,-9.8f);
+        default: return glm::vec3(9.8f,0.0f,9.8f);
     }
 }
 
