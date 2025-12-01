@@ -43,7 +43,7 @@ public:
     void setBoost(bool b);
     float getSpeed();
 
-    void shoot(float time);
+    bool shoot(float time);
     void reload();
     void addScore(int points);
     float gunAnimation(float time);

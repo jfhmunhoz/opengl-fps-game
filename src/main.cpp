@@ -331,7 +331,7 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
             glm::vec3 CamToAlvo = glm::normalize(glm::vec3(camera_view_vector.x, camera_view_vector.y, camera_view_vector.z));
             
             hit = false;
-            if(player.getAmmo() > 0)
+            if(player.shoot(g_Seconds))
             {
                 for (auto& enemy : enemies)
                 {
@@ -350,7 +350,6 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
                     }
                 }
             }
-            player.shoot(g_Seconds);
         }
         else{
             hit = false;

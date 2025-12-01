@@ -101,15 +101,17 @@ int Player::getMaxAmmo() const
     return maxAmmo;
 }
 
-void Player::shoot(float time)
+bool Player::shoot(float time)
 {
     if (nroBalas > 0) {
         if(time - prevShotTime > 0.5f)
         {
             nroBalas--;
             prevShotTime = time;
+            return true;
         }
     }
+    return false;
 }
 
 float Player::gunAnimation(float time)
