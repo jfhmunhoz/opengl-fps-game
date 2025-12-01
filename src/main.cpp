@@ -35,6 +35,7 @@
 #define BEZIER_INTERVAL 2.0f
 #define FPS60 1
 #define FPS30 2
+#define FPS 1
 
 void PushMatrix(glm::mat4 M);
 void PopMatrix(glm::mat4& M);
@@ -146,10 +147,12 @@ GLint g_model_uniform;
 GLint g_view_uniform;
 GLint g_projection_uniform;
 GLint g_object_id_uniform;
+GLint g_material_id_uniform;
 GLint g_bbox_min_uniform;
 GLint g_bbox_max_uniform;
 GLint g_player_dead_uniform;
 GLint g_time_uniform;
+GLint g_player_view_uniform;
 
 GLuint g_NumLoadedTextures = 0;
 
@@ -166,54 +169,55 @@ input_t g_Input;
 
 int main(int argc, char* argv[])
 {
-int success = glfwInit();
-if (!success)
-{
-    fprintf(stderr, "ERROR: glfwInit() failed.\n");
-    std::exit(EXIT_FAILURE);
-}
-glfwSetErrorCallback(ErrorCallback);
+    int success = glfwInit();
+    if (!success)
+    {
+        fprintf(stderr, "ERROR: glfwInit() failed.\n");
+        std::exit(EXIT_FAILURE);
+    }
+    glfwSetErrorCallback(ErrorCallback);
 
-glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 
 #ifdef __APPLE__
-glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-GLFWwindow* window;
-window = glfwCreateWindow(800, 600, "STOP MELTING MY HOME", NULL, NULL);
-if (!window)
-{
-    glfwTerminate();
-    fprintf(stderr, "ERROR: glfwCreateWindow() failed.\n");
-    std::exit(EXIT_FAILURE);
-}
+    GLFWwindow* window;
+    window = glfwCreateWindow(800, 600, "STOP MELTING MY HOME", NULL, NULL);
+    if (!window)
+    {
+        glfwTerminate();
+        fprintf(stderr, "ERROR: glfwCreateWindow() failed.\n");
+        std::exit(EXIT_FAILURE);
+    }
 
-glfwSetKeyCallback(window, KeyCallback);
-glfwSetMouseButtonCallback(window, MouseButtonCallback);
-glfwSetCursorPosCallback(window, CursorPosCallback);
-glfwSetScrollCallback(window, ScrollCallback);
-glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetKeyCallback(window, KeyCallback);
+    glfwSetMouseButtonCallback(window, MouseButtonCallback);
+    glfwSetCursorPosCallback(window, CursorPosCallback);
+    glfwSetScrollCallback(window, ScrollCallback);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-glfwMakeContextCurrent(window);
-glfwSwapInterval(FPS60);
+    glfwMakeContextCurrent(window);
+    glfwSwapInterval(FPS);
 
-gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
+    gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
 
-glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
-FramebufferSizeCallback(window, 800, 600);
+    glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
+    FramebufferSizeCallback(window, 800, 600);
 
-const GLubyte *vendor      = glGetString(GL_VENDOR);
-const GLubyte *renderer    = glGetString(GL_RENDERER);
-const GLubyte *glversion   = glGetString(GL_VERSION);
+    const GLubyte *vendor      = glGetString(GL_VENDOR);
+    const GLubyte *renderer    = glGetString(GL_RENDERER);
+    const GLubyte *glversion   = glGetString(GL_VERSION);
     const GLubyte *glslversion = glGetString(GL_SHADING_LANGUAGE_VERSION);
 
     printf("GPU: %s, %s, OpenGL %s, GLSL %s\n", vendor, renderer, glversion, glslversion);
 
     LoadShadersFromFiles();
+    glfwPollEvents();
 
     LoadTextureImage("../../data/concrete_floor/textures/concrete_floor_worn_001_diff_4k.jpg");
     LoadTextureImage("../../data/rusty_metal/textures/rusty_metal_grid_diff_4k.jpg");
@@ -504,7 +508,7 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
         glUniform1i(g_player_dead_uniform, player.isAlive() ? 0 : 1);
         glUniform1f(g_time_uniform, g_Seconds);
 
-        glUniform4fv(glGetUniformLocation(g_GpuProgramID, "player_view"), 1, glm::value_ptr(glm::normalize(player.getViewVector())));
+        glUniform4fv(g_player_view_uniform, 1, glm::value_ptr(glm::normalize(player.getViewVector())));
         if(camera.isLookAt())
         {
             model = 
@@ -515,7 +519,7 @@ const GLubyte *glversion   = glGetString(GL_VERSION);
             glUniform1i(g_object_id_uniform, PENGUIN);
             for (const auto& name : penguin_part_names) {
                 int matid = g_VirtualScene[name].material_id;
-                glUniform1i(glGetUniformLocation(g_GpuProgramID, "material_id"), matid);
+                glUniform1i(g_material_id_uniform, matid);
                 DrawVirtualObject(name.c_str());
             }
             model = 
@@ -598,7 +602,7 @@ void DrawEnemy(Enemy enemy, std::vector<std::string> robot_part_names)
     //for loop given by GPT-4.1
     for (const auto& name : robot_part_names) {
         int matid = g_VirtualScene[name].material_id;
-        glUniform1i(glGetUniformLocation(g_GpuProgramID, "material_id"), matid);
+        glUniform1i(g_material_id_uniform , matid);
         DrawVirtualObject(name.c_str());
     }
 }
@@ -769,6 +773,7 @@ void LoadTextureImage(const char* filename)
     stbi_image_free(data);
 
     g_NumLoadedTextures += 1;
+    glfwPollEvents();
 }
 
 
@@ -809,10 +814,12 @@ void LoadShadersFromFiles()
     g_view_uniform       = glGetUniformLocation(g_GpuProgramID, "view");
     g_projection_uniform = glGetUniformLocation(g_GpuProgramID, "projection");
     g_object_id_uniform  = glGetUniformLocation(g_GpuProgramID, "object_id");
+    g_material_id_uniform = glGetUniformLocation(g_GpuProgramID, "material_id");
     g_bbox_min_uniform   = glGetUniformLocation(g_GpuProgramID, "bbox_min");
     g_bbox_max_uniform   = glGetUniformLocation(g_GpuProgramID, "bbox_max");
     g_player_dead_uniform = glGetUniformLocation(g_GpuProgramID, "player_dead");
     g_time_uniform = glGetUniformLocation(g_GpuProgramID, "time");
+    g_player_view_uniform = glGetUniformLocation(g_GpuProgramID, "player_view"); 
 
     glUseProgram(g_GpuProgramID);
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage0"), 0);
@@ -1041,6 +1048,7 @@ void BuildTrianglesAndAddToVirtualScene(ObjModel* model)
     glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, indices.size() * sizeof(GLuint), indices.data());
 
     glBindVertexArray(0);
+    glfwPollEvents();
 }
 
 
