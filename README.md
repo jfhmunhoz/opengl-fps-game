@@ -45,7 +45,7 @@ During the project, we studied and implemented fundamental computer graphics con
 * **[João Francisco]:** Implemented the camera system, player movement, texturing for objects, the lighting models, interpolation models and other shader logic, rat movement with Bézier curves, loading of .obj models, logic of enemies and securirty camera and obtained the models form internet.
 * **[Mario Augusto]:**  Point-sphere,Sphere-sphere, Plane-sphere collision detection ,designed the camera aiming system, and developed orb movement mechanics.
 
-### Use of AI Tools (ChatGPT, Copilot, etc.)
+### Use of AI Tools
 
 * Explaining concepts of Computer Graphics;
 * Explaining details about the technologies being used;
@@ -54,7 +54,7 @@ During the project, we studied and implemented fundamental computer graphics con
 * Loading .obj in tiny_obj_loader with multiple objects in one file;
 
 ### Analysis of AI Tools
-The AI tools were OK for debugind obvious bugs and writing short specific code, like a for loop for loading object parts from a .obj. They were not so good, but also no horrible for making templates for the class files. The tools would just not work for more complex bugs, or if it was asked to write code which required understanding big parts of the code.
+The AI tools were OK for debugind obvious bugs and writing short specific code, like a for loop for loading object parts from a .obj. They were not so good, but also no horrible for making templates for the class files. The tools would just not work for more complex bugs, or if it was asked to write code which required understanding big parts of the project.
 
 
 ## Implementation of CG Concepts
@@ -74,7 +74,6 @@ Below, we detail how each technical requirement from the course was implemented 
     The object of the robot was instaced multiple times, one for each enemy, which spawn in a decreasing time interval up to a max of 20 simultaneous enemies.
 
 * **Intersection Tests:**
-    [List the three types of collision tests implemented (e.g., sphere-sphere, AABB-AABB, point-plane) and explain the purpose of each in the application. E.g., "AABB-AABB collision is used to prevent the player from passing through walls. Sphere-sphere collision detects when the player's projectile hits an enemy." Remember to mention that the implementation is in the `collisions.cpp` file.]
 
 * **Lighting Models (Diffuse and Blinn-Phong):**
     Pingu and the gun use the Blinn-Phong lighting model. All other objects (besides the sphere which has a procedural logic independent of light sources) use Diffuse model.
@@ -122,4 +121,4 @@ cd bin/Linux
 
 You can watch a demonstration of our application on YouTube:
 
-**[Link to your YouTube video]**
+**[Youtube Video](youtube.com)**
