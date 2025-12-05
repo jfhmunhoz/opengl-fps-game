@@ -1,5 +1,7 @@
 # OpenlGL FPS Game - Final Project for Fundamentals of Computer Graphics
 
+![Game Wallpaper](images/stop-melting-my-home.png)
+
 This is the final project for the Fundamentals of Computer Graphics course (INF/UFRGS), developed by Joao Francisco and Mario Augusto.
 
 **Application Description:**
