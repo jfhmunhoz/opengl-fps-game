@@ -74,6 +74,7 @@ Below, we detail how each technical requirement from the course was implemented 
     The object of the robot was instaced multiple times, one for each enemy, which spawn in a decreasing time interval up to a max of 20 simultaneous enemies.
 
 * **Intersection Tests:**
+    Plane–sphere collision was implemented to delimit the game walls. Point–sphere collision was used to detect when the player's shot hit enemies, and sphere–sphere collision was used for the interaction between the player and the orb, allowing the player to recharge bullets and gain movement speed.
 
 * **Lighting Models (Diffuse and Blinn-Phong):**
     Pingu and the gun use the Blinn-Phong lighting model. All other objects (besides the sphere which has a procedural logic independent of light sources) use Diffuse model.
@@ -88,7 +89,7 @@ Below, we detail how each technical requirement from the course was implemented 
     The rat moves based on a cubic Bézier curve with each point located at one corner of the map.
 
 * **Time-Based Animation:**
-    All movement is based on delta Time which is the time elapsed since the last frame. This makes so that the game works the same in different computers.
+    All movement(player, enemies, orb) is based on delta time which is the time elapsed since the last frame. This makes the game works the same in different computers.
 
 
 ## Building and Running
