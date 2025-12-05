@@ -1,13 +1,13 @@
 # OpenlGL FPS Game - Final Project for Fundamentals of Computer Graphics
 
-This is the final project for the Fundamentals of Computer Graphics course (INF/UFRGS), developed by Joao Francisco and Mario.
+This is the final project for the Fundamentals of Computer Graphics course (INF/UFRGS), developed by Joao Francisco and Mario Augusto.
 
 **Application Description:**
 
 
 ## Team Members
 
-* **Joao Francsico Hirtenkauf Munhoz** - 00275634
+* **Joao Francisco Hirtenkauf Munhoz** - 00275634
 * **Mario Augusto Brum da Silveira** - 00322868
 
 
@@ -25,9 +25,12 @@ This is the final project for the Fundamentals of Computer Graphics course (INF/
 | `W`, `A`, `S`, `D` | Move the main character/object.                  |
 | `Arrow Keys`       | Control the free camera.                         |
 | `Mouse`            | Controls the camera's orientation.               |
-| `Spacebar`         | Jump / Shoot / Special Action.                   |
+| `Left Mouse`       | Aim/Zoom.                                        |
+| `Right Mouse`      | Shot.                                            |
 | `C`                | Switch between camera types (Look-at / Free).    |
-| `P`                | Pauses the application.                          |
+| `K`                | Start enemies spawn.                             |
+| `J`                | Stop enemies spawn.                              |
+| `N`                | Restart the game.                                |
 | `Esc`              | Closes the application.                          |
 
 
@@ -37,8 +40,11 @@ This is the final project for the Fundamentals of Computer Graphics course (INF/
 
 ### Member Contributions
 
-* **[Student 1 Name]:** [List your main contributions here. E.g., Implemented the camera system, player physics, AABB-AABB collision detection, and texturing for objects X and Y.]
-* **[Student 2 Name]:** [List your main contributions here. E.g., Implemented the lighting models (Gouraud/Phong), enemy movement with Bézier curves, loading of .obj models, and point-sphere collision detection.]
+* **[João Francisco]:** [List your main contributions here. E.g., Implemented the camera system, player physics, AABB-AABB collision detection, and texturing for objects X and Y.]
+* **[Mario Augusto]:** [List your main contributions here. E.g., Implemented the lighting models (Gouraud/Phong), enemy movement with Bézier curves, loading of .obj models, and point-sphere collision detection.]
+
+* * **[João Francisco]:** [Implemented the camera system, player movement, texturing for objects, implemented the lighting models (Gouraud/Phong), rat movement with Bézier curves, loading of .obj models.]
+* **[Mario Augusto]:**  [Point-sphere,Sphere-sphere, Plane-sphere collision detection ,designed the camera aiming system, and developed orb movement mechanics.]
 
 ### Use of AI Tools (ChatGPT, Copilot, etc.)
 
