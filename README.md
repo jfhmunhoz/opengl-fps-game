@@ -31,7 +31,7 @@ This is the final project for the Fundamentals of Computer Graphics course (INF/
 | `K`                | Start enemies spawn.                             |
 | `J`                | Stop enemies spawn.                              |
 | `N`                | Restart the game.                                |
-| `Esc`              | Closes the application.                          |
+| `Esc`              | Close the application.                          |
 
 
 ## Development Process
