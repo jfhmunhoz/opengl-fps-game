@@ -227,6 +227,7 @@ int main(int argc, char* argv[])
     LoadTextureImage("../../data/robot2/Chopper_BaseColor.png");
     LoadTextureImage("../../data/penguin/Penguin_Albedo.png");
     LoadTextureImage("../../data/camera/textures/security_camera_02_diff_4k.jpg");
+    LoadTextureImage("../../data/enter-to-start.png");
 
     ObjModel spheremodel("../../data/sphere.obj");
     ComputeNormals(&spheremodel);
@@ -1263,22 +1264,6 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
 
     float delta = 3.141592 / 16; // 22.5 graus, em radianos.
 
-    if (key == GLFW_KEY_X && action == GLFW_PRESS)
-    {
-        g_AngleX += (mod & GLFW_MOD_SHIFT) ? -delta : delta;
-    }
-
-    if (key == GLFW_KEY_Y && action == GLFW_PRESS)
-    {
-        g_AngleY += (mod & GLFW_MOD_SHIFT) ? -delta : delta;
-    }
-    if (key == GLFW_KEY_Z && action == GLFW_PRESS)
-    {
-        g_AngleZ += (mod & GLFW_MOD_SHIFT) ? -delta : delta;
-    }
-    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
-    {
-    }
     if (key == GLFW_KEY_C && action == GLFW_RELEASE)
     {
         g_Input.lookat = !g_Input.lookat;
