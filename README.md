@@ -13,7 +13,9 @@ This is the final project for the Fundamentals of Computer Graphics course (INF/
 
 ## Application Screenshots
 
-![Image Caption 1](path/to/your/image1.png)
+![First Person Camera](images/first-person.png)
+![Look At Camera](images/look-at.png)
+![Death Screen](images/death-screen.png)
 
 
 ## User Manual
@@ -23,10 +25,9 @@ This is the final project for the Fundamentals of Computer Graphics course (INF/
 | Key/Mouse          | Action                                           |
 | ------------------ | ------------------------------------------------ |
 | `W`, `A`, `S`, `D` | Move the main character/object.                  |
-| `Arrow Keys`       | Control the free camera.                         |
 | `Mouse`            | Controls the camera's orientation.               |
-| `Left Mouse`       | Aim/Zoom.                                        |
-| `Right Mouse`      | Shot.                                            |
+| `Right Mouse`      | Aim/Zoom.                                        |
+| `Left Mouse`       | Shot.                                            |
 | `C`                | Switch between camera types (Look-at / Free).    |
 | `K`                | Start enemies spawn.                             |
 | `J`                | Stop enemies spawn.                              |
@@ -36,19 +37,24 @@ This is the final project for the Fundamentals of Computer Graphics course (INF/
 
 ## Development Process
 
-[Describe the overall development process here. Talk about the technologies chosen, the challenges you faced, the design decisions you made, and how you organized the work as a pair.]
+The technologies chosen for the project were C++, OpenGL, GLFW, glad, glm and the tiny object loader library. For version control git and GitHub were used.
+During the project, we studied and implemented fundamental computer graphics concepts, including real-time rendering with OpenGL, movement based on time, interpolation and illumination models implemented in vertex and fragment shaders, movement based on Bézier curves and collision tests. We also handled texture mapping, and built 3D scenes with first and third-person camera control.
 
 ### Member Contributions
 
-* **[João Francisco]:** [List your main contributions here. E.g., Implemented the camera system, player physics, AABB-AABB collision detection, and texturing for objects X and Y.]
-* **[Mario Augusto]:** [List your main contributions here. E.g., Implemented the lighting models (Gouraud/Phong), enemy movement with Bézier curves, loading of .obj models, and point-sphere collision detection.]
-
-* * **[João Francisco]:** [Implemented the camera system, player movement, texturing for objects, implemented the lighting models (Gouraud/Phong), rat movement with Bézier curves, loading of .obj models.]
-* **[Mario Augusto]:**  [Point-sphere,Sphere-sphere, Plane-sphere collision detection ,designed the camera aiming system, and developed orb movement mechanics.]
+* **[João Francisco]:** Implemented the camera system, player movement, texturing for objects, the lighting models, interpolation models and other shader logic, rat movement with Bézier curves, loading of .obj models, logic of enemies and securirty camera and obtained the models form internet.
+* **[Mario Augusto]:**  Point-sphere,Sphere-sphere, Plane-sphere collision detection ,designed the camera aiming system, and developed orb movement mechanics.
 
 ### Use of AI Tools (ChatGPT, Copilot, etc.)
 
-[A short paragraph indicating whether the team used ChatGPT (or any other similar tool, like Claude, Gemini, LLaMa, Github Copilot, OpenAI Codex, etc.) for the project's development. Describe how the tool was used and for which parts of the project. The paragraph must also include a critical analysis describing how useful the team found the tool, where it helped, and where it did not provide adequate assistance.]
+* Explaining concepts of Computer Graphics;
+* Explaining details about the technologies being used;
+* Creating base files for Player, Enemy and Camera;
+* Debuging main loop and shaders;
+* Loading .obj in tiny_obj_loader with multiple objects in one file;
+
+### Analysis of AI Tools
+The AI tools were OK for debugind obvious bugs and writing short specific code, like a for loop for loading object parts from a .obj. They were not so good, but also no horrible for making templates for the class files. The tools would just not work for more complex bugs, or if it was asked to write code which required understanding big parts of the code.
 
 
 ## Implementation of CG Concepts
@@ -56,66 +62,60 @@ This is the final project for the Fundamentals of Computer Graphics course (INF/
 Below, we detail how each technical requirement from the course was implemented in our application.
 
 * **Complex Polygonal Meshes:**
-    [Describe which complex models were used (e.g., `cow.obj` or others). Explain how these models (in .obj format) were loaded, mentioning the library used (e.g., `tinyobjloader`).]
+    Complex models were used for Pingu, the gun, the robots and the security camera. All objects were loaded with tiny object loader.
 
 * **Geometric Transformations:**
-    [Explain which transformations (scale, rotation, translation) are applied and how the user can control them. For example: "The player can rotate the selected object using the Q and E keys, which updates the object's `Model matrix` every frame."]
+    Player movement controls geometric transformations of Pingu and the gun. Shooting and aiming also transforms the gun. Walking makes the security camera turn toward the position of the player.
 
 * **Virtual Camera Control:**
-    [Detail the two types of cameras implemented (e.g., a first-person camera and a look-at camera that orbits the scene). Explain how the user can switch between them and how each one works, mentioning the calculation of the `View` and `Projection` matrices.]
+    Two types of camera were implemented. Free camera was implemented as the first person camera centered in the player. A look-at camera was implemented centered in the player so that the model of Pingu can be observed.
 
 * **Object Instancing:**
-    [Indicate which virtual object was instanced multiple times and how this was achieved. E.g., "The trees in the scene are all drawn from the same set of vertices. For each tree, a different `Model matrix` is sent to the shader, changing its position, scale, and rotation."]
+    The object of the robot was instaced multiple times, one for each enemy, which spawn in a decreasing time interval up to a max of 20 simultaneous enemies.
 
 * **Intersection Tests:**
     [List the three types of collision tests implemented (e.g., sphere-sphere, AABB-AABB, point-plane) and explain the purpose of each in the application. E.g., "AABB-AABB collision is used to prevent the player from passing through walls. Sphere-sphere collision detects when the player's projectile hits an enemy." Remember to mention that the implementation is in the `collisions.cpp` file.]
 
 * **Lighting Models (Diffuse and Blinn-Phong):**
-    [Describe how the lighting models were applied. E.g., "The scene lighting uses the Lambert (diffuse) model for a simpler look, while the main character uses the Blinn-Phong model for specular highlights that give its armor a more metallic appearance."]
+    Pingu and the gun use the Blinn-Phong lighting model. All other objects (besides the sphere which has a procedural logic independent of light sources) use Diffuse model.
 
 * **Interpolation Models (Gouraud and Phong):**
-    [Explain which objects use each interpolation model. E.g., "Scene objects are rendered with Gouraud shading (per-vertex calculation) for better performance, while the player character is rendered with Phong shading (per-fragment calculation) for smoother and more accurate lighting."]
+    The robots, the rat and the security camera use the Gouraud interpolation model. All other objects use the Phong interpolation model.
 
 * **Texture Mapping:**
-    [State that all objects have been textured and list the texture images used. Comment on the process to avoid distortion. E.g., "All objects have textures. We used three distinct images: `brick.png` for the walls, `grass.png` for the ground, and `metal.png` for the enemies. UV coordinate mapping was done carefully to ensure textures did not appear stretched."]
-
+    All objects have textures without distortion. The sphere has a procedural texture, the robots have texture based only on colors for each part of the robot. All other objects have textures based on images.
+ 
 * **Bézier Curves:**
-    [Describe which object moves along a cubic Bézier curve and how the curve was defined. E.g., "The moving platforms follow a path predefined by a cubic Bézier curve. The curve's four control points define a smooth and continuous back-and-forth movement."]
+    The rat moves based on a cubic Bézier curve with each point located at one corner of the map.
 
 * **Time-Based Animation:**
-    [Explain how movement was decoupled from the framerate. E.g., "All animations and movements, including the camera and the player, are multiplied by a `delta_t` calculated each frame. This ensures that the speed is constant across different computers."]
+    All movement is based on delta Time which is the time elapsed since the last frame. This makes so that the game works the same in different computers.
 
-### Extra Features (Optional)
-
-[If you implemented any extra features, describe them here. For example: a particle system for explosions, a GUI with ImGui to display the score, or sound effects with miniaudio.]
 
 ## Building and Running
 
 ### Dependencies
 To build and run this project, you will need:
-* [List necessary libraries, e.g., OpenGL, Glad, GLFW, glm]
-* [List the compiler and build system, e.g., g++, CMake]
-* [Any other dependencies, e.g., Python for a script]
+* g++
+* make
 
 ### Build Steps
 
 **Linux:**
 ```bash
-# Example steps to build on Linux
-mkdir build
-cd build
-cmake ..
-make
+# From the root folder
+make run
 ```
 
 ### Execution
 
-After building, the executable will be in the `build` folder. To run:
+After building, the executable will be in the `bin/Linux` folder. To run:
 
 **Linux:**
 ```bash
 # From the root folder
-./build/your_executable_name
+cd bin/Linux
+./main
 ```
 
 ## Presentation Video
