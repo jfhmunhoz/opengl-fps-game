@@ -124,4 +124,4 @@ cd bin/Linux
 
 You can watch a demonstration of our application on YouTube:
 
-**[Youtube Video](youtube.com)**
+**[Demonstration Video](https://www.youtube.com/watch?v=LA_4Fbr0zuE)**
