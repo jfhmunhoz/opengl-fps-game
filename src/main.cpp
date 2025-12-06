@@ -227,7 +227,6 @@ int main(int argc, char* argv[])
     LoadTextureImage("../../data/robot2/Chopper_BaseColor.png");
     LoadTextureImage("../../data/penguin/Penguin_Albedo.png");
     LoadTextureImage("../../data/camera/textures/security_camera_02_diff_4k.jpg");
-    LoadTextureImage("../../data/enter-to-start.png");
 
     ObjModel spheremodel("../../data/sphere.obj");
     ComputeNormals(&spheremodel);
